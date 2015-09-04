@@ -1,0 +1,284 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<!--<script type="application/javascript" src="../lodash/lodash.js"></script>-->
+
+<link rel="import" href="../ll-theme/ll-theme.html">
+<link rel="import" href="ll-table-manager.html">
+
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <ll-table></ll-table>
+
+@demo
+-->
+<dom-module id="ll-table">
+
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+            margin: 1%;
+        }
+
+        span > iron-icon.up, span > iron-icon.down {
+            display: inline-block;
+            margin-left: 2px;
+        }
+
+        iron-icon.up {
+            width: 36px;
+            color: #7BC6F4;
+            top: -5px;
+            left: -11px;
+        }
+
+        iron-icon.down {
+            width: 36px;
+            color: #7BC6F4;
+            left: -51px;
+            top: 5px;
+        }
+
+        iron-icon.cancel {
+            color: #005DA2;
+            transform: translateX(60%);
+        }
+
+        paper-icon-button.cancel {
+            color: #005DA2;
+            transform: translateX(15%);
+        }
+
+        paper-icon-button.cancel:hover {
+
+        }
+
+        a, a:visited {
+            color: #ffffff;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #7BC6F4;
+            text-decoration: none;
+        }
+
+        .search {
+            -webkit-transform: translateX(7px);
+            -moz-transform: translateX(7px);
+            -ms-transform: translateX(7px);
+            -o-transform: translateX(7px);
+            transform: translateX(7px);
+            color: #A9A9A9;
+        }
+
+        #input {
+            margin: 0.5rem 0 1rem -28px;
+            padding-left: 37px;
+            border-radius: 10px;
+            height: 150%;
+            font-size: 1.4rem;
+            color: #000;
+        }
+
+
+    </style>
+
+    <template>
+
+        <ll-table-manager id="manager" on-units-received="_handleUnitsResponse"></ll-table-manager>
+        <div class="table-container" id="fees">
+            <table id="table" data-toggle="table" data-classes="table table-hover table-no-bordered" data-search="true"
+                   data-show-toggle="true" data-show-columns="true">
+                <thead>
+                <div>
+                    <iron-icon class="search" icon="icons:search"></iron-icon>
+                    <input id="input" type="text" placeholder="Search Properties" value="{{filterVal::input}}"></div>
+
+                <tr>
+                    <template is="dom-repeat" items="{{header}}" as="header" value="{{header.configName}}">
+                        <th onclick="sort(header.configName)"><a href="#">{{header.name}}<span><iron-icon class="up" icon="icons:arrow-drop-up"></iron-icon>
+                            <iron-icon class="down" icon="icons:arrow-drop-down"></iron-icon></span>
+                        </a></th>
+                    </template>
+                    <th>Remove</th>
+                </tr>
+                </thead>
+
+
+                <tbody>
+                <template is="dom-repeat" as='body' items="{{body}}" filter="{{_filter(filterVal)}}">
+                    <tr>
+                        <template is="dom-repeat" as='header' items="{{header}}">
+                            <td>{{format(header, body)}}</td>
+                        </template>
+                        <td>
+                            <paper-icon-button class="cancel" icon="cancel"></paper-icon-button>
+                        </td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+
+    </template>
+
+</dom-module>
+
+<script>
+
+    Polymer({
+        format: function (header, item) {
+            return item[header.configName];
+        },
+
+        sort: function (val) {
+            switch (val) {
+                case 'property':
+                    return function (a, b) {
+                        if (a.property === b.property) return 0;
+                        return a.property < b.property ? -1 : 1;
+                    };
+                case 'unit':
+                    return function (a, b) {
+                        if (a.unit === b.unit) return 0;
+                        return a.unit < b.unit ? -1 : 1;
+                    };
+            }
+        },
+
+        work: function() {
+            console.log('ok, fine');
+        },
+
+        is: 'll-table',
+
+        properties: {
+            opened: {
+                type: Boolean,
+                value: false
+            },
+            listeners: {
+                'click': 'toggle'
+            },
+
+            pmcId: {
+                type: String,
+                value: ''
+            },
+
+            feedId: {
+                type: String,
+                value: ''
+            },
+            body: {
+                type: Array,
+                value: []
+            }
+
+        },
+
+        // Element Lifecycle
+
+        ready: function () {
+            var fees = document.getElementById("fees");
+
+            function setHeader(headerData) {
+                this.header = headerData;
+                return this.body;
+            }
+
+            function setTableBody(bodyData) {
+                this.body = bodyData;
+                return this.body;
+            }
+
+            this.header = [
+                {name: 'Property', configName: 'property'},
+                {name: 'Unit', configName: 'unit'},
+                {name: 'Floor Plan', configName: 'floorplan'},
+                {name: 'Bedrooms', configName: 'bedrooms'},
+                {name: 'Bathrooms', configName: 'bathrooms'},
+                {name: 'Occupancy', configName: 'occupancy'}
+            ];
+
+            this.body = [
+                {
+                    occupancy: "10",
+                    property: "Care Lane",
+                    unit: "Bear Lane #3",
+                    bathrooms: "9 Full",
+                    floorplan: "Condo",
+                    bedrooms: "5BR"
+                },
+                {
+                    property: "Bear Lane",
+                    unit: "Bear Lane #4",
+                    floorplan: "Mansion",
+                    bedrooms: "1BR",
+                    bathrooms: "2 Full",
+                    occupancy: "4"
+                },
+                {
+                    property: "Rusty Creek",
+                    unit: "Rusty Creek #2",
+                    floorplan: "Cabin",
+                    bedrooms: "2BR",
+                    bathrooms: "3 Full",
+                    occupancy: "8"
+                }
+            ];
+
+        },
+
+        openModal: function () {
+            this.opened = true;
+            this.$.curtain.open();
+        },
+
+        removeAssociation: function () {
+
+        },
+
+        detailsTab: function () {
+
+        },
+
+        back: function () {
+            this.panels.pop();
+        },
+
+        _filter: function (val) {
+            return function (bodyData) {
+                if (!val) return true;
+                if (!bodyData) return false;
+                return (bodyData.property && ~bodyData.property.indexOf(val));
+            };
+        }
+    });
+</script>

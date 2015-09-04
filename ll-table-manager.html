@@ -1,0 +1,54 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="ll-table-manager">
+  <template>
+    <iron-ajax id="units" handle-as="json" on-response="_handleUnitsResponse" on-error="_handleError"></iron-ajax>
+  </template>
+</dom-module>
+
+<script>
+  LLTableManager = Polymer({
+    is: 'll-table-manager',
+
+    properties: {
+      pmcId: {
+        type: String,
+        observer: '_pmcIdChanged'
+      }
+    },
+
+    ready: function() {
+      LLTableManager.EVENT_OPTIONS = { bubbles: false }
+    },
+
+    getUnits: function() {
+      this.$.units.generateRequest();
+    },
+
+    /**
+     * Observer to the PmcId property
+     * @private
+     * @param {String} pmcId
+     */
+    _pmcIdChanged: function(pmcId) {
+      var units = this.$.units;
+      units.url = '/accounts/' + pmcId + '/units';
+      units.generateRequest();
+    },
+
+    _handleOpenModal: function(e, detail) {
+      this.fire('open-modal', detail.response, LLTableManager.EVENT_OPTIONS);
+    },
+
+    _handleUnitsResponse: function(e, detail) {
+      this.fire('units-received', detail.response, LLTableManager.EVENT_OPTIONS);
+    },
+
+    _handleError: function(e, detail) {
+      this.fire('units-error', detail.response, LLTableManager.EVENT_OPTIONS);
+    }
+
+
+  });
+</script>
