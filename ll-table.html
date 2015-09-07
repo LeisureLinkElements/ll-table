@@ -110,7 +110,6 @@ Example:
             margin-top: 20px;
         }
 
-
         button {
             font-weight: 700;
             /*margin: 55px 0 45px 0;*/
@@ -230,10 +229,10 @@ Example:
                     <iron-icon class="search" icon="icons:search"></iron-icon>
                     <input id="input" type="text" placeholder="Search Properties" value="{{filterVal::input}}"></div>
                 <!--<div>-->
-                    <!--<select value="{{sortVal::change}}">-->
-                    <!--<option value="property">Name</option>-->
-                    <!--<option value="unit">Email</option>-->
-                    <!--</select>-->
+                <!--<select value="{{sortVal::change}}">-->
+                <!--<option value="property">Name</option>-->
+                <!--<option value="unit">Email</option>-->
+                <!--</select>-->
                 <!--</div>-->
 
                 <tr>
@@ -247,7 +246,8 @@ Example:
                 </thead>
 
                 <tbody>
-                <template is="dom-repeat" as='body' items="{{body}}" filter="{{_filter(filterVal)}}"><!--sort="_sort(sortVal)">-->
+                <template is="dom-repeat" as='body' items="{{body}}" filter="{{_filter(filterVal)}}">
+                    <!--sort="_sort(sortVal)">-->
                     <tr>
                         <template is="dom-repeat" as='header' items="{{header}}">
                             <td>{{format(header, body)}}</td>
@@ -303,9 +303,6 @@ Example:
                 type: Boolean,
                 value: false
             },
-            listeners: {
-                'click': 'toggle'
-            },
 
             pmcId: {
                 type: String,
@@ -322,10 +319,21 @@ Example:
                 value: ''
             },
 
-            body: {
+            headerData: {
+                type: Object,
+                value: {}
+            },
+
+            bodyData: {
                 type: Array,
                 value: []
             }
+
+        },
+
+        listeners: {
+            'click': 'toggle'
+
 
         },
 
@@ -333,55 +341,20 @@ Example:
 
         ready: function () {
             var fees = document.getElementById("fees");
+            this.setTableHeader(headerData);
+            this.setTableBody(bodyData);
+        },
 
-            function setHeader(headerData) {
-                console.log('getting header data', headerData);
-                this.header = headerData;
-                return this.body;
-            }
+        setTableHeader: function (headerData) {
+            console.log('getting header data', headerData);
+            this.header = headerData;
+            return this.body;
+        },
 
-            function setTableBody(bodyData) {
-                console.log('getting body data', bodyData);
-                this.body = bodyData;
-                return this.body;
-            }
-
-//            this.header = [
-//                {name: 'Property', configName: 'property'},
-//                {name: 'Unit', configName: 'unit'},
-//                {name: 'Floor Plan', configName: 'floorplan'},
-//                {name: 'Bedrooms', configName: 'bedrooms'},
-//                {name: 'Bathrooms', configName: 'bathrooms'},
-//                {name: 'Occupancy', configName: 'occupancy'}
-//            ];
-//
-//            this.body = [
-//                {
-//                    occupancy: "10",
-//                    property: "Care Lane",
-//                    unit: "Bear Lane #3",
-//                    bathrooms: "9 Full",
-//                    floorplan: "Condo",
-//                    bedrooms: "5BR"
-//                },
-//                {
-//                    property: "Bear Lane",
-//                    unit: "Bear Lane #4",
-//                    floorplan: "Mansion",
-//                    bedrooms: "1BR",
-//                    bathrooms: "2 Full",
-//                    occupancy: "4"
-//                },
-//                {
-//                    property: "Rusty Creek",
-//                    unit: "Rusty Creek #2",
-//                    floorplan: "Cabin",
-//                    bedrooms: "2BR",
-//                    bathrooms: "3 Full",
-//                    occupancy: "8"
-//                }
-//            ];
-
+        setTableBody: function (bodyData) {
+            console.log('getting body data', bodyData);
+            this.body = bodyData;
+            return this.body;
         },
 
         openModal: function () {
