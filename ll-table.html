@@ -332,29 +332,64 @@ Example:
         },
 
         listeners: {
-            'click': 'toggle'
-
-
+            'click': 'toggle',
+            'loadHeaderData': 'setTableHeader',
+            'loadBodyData': 'setTableBody',
+            'loadTable': 'setTable'
         },
+
 
         // Element Lifecycle
 
         ready: function () {
             var fees = document.getElementById("fees");
-            this.setTableHeader(headerData);
-            this.setTableBody(bodyData);
-        },
 
-        setTableHeader: function (headerData) {
-            console.log('getting header data', headerData);
-            this.header = headerData;
-            return this.header;
-        },
+            function setHeader(headerData) {
+                console.log('getting header data', headerData);
+                this.header = headerData;
+                return this.body;
+            }
+            function setTableBody(bodyData) {
+                console.log('getting body data', bodyData);
+                this.body = bodyData;
+                return this.body;
+            }
 
-        setTableBody: function (bodyData) {
-            console.log('getting body data', bodyData);
-            this.body = bodyData;
-            return this.body;
+            this.header = [
+                {name: 'Property', configName: 'property'},
+                {name: 'Unit', configName: 'unit'},
+                {name: 'Floor Plan', configName: 'floorplan'},
+                {name: 'Bedrooms', configName: 'bedrooms'},
+                {name: 'Bathrooms', configName: 'bathrooms'},
+                {name: 'Occupancy', configName: 'occupancy'}
+            ];
+
+            this.body = [
+                {
+                    occupancy: "10",
+                    property: "Care Lane",
+                    unit: "Bear Lane #3",
+                    bathrooms: "9 Full",
+                    floorplan: "Condo",
+                    bedrooms: "5BR"
+                },
+                {
+                    property: "Bear Lane",
+                    unit: "Bear Lane #4",
+                    floorplan: "Mansion",
+                    bedrooms: "1BR",
+                    bathrooms: "2 Full",
+                    occupancy: "4"
+                },
+                {
+                    property: "Rusty Creek",
+                    unit: "Rusty Creek #2",
+                    floorplan: "Cabin",
+                    bedrooms: "2BR",
+                    bathrooms: "3 Full",
+                    occupancy: "8"
+                }
+            ];
         },
 
         openModal: function () {
