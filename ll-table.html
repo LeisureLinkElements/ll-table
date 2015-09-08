@@ -333,63 +333,43 @@ Example:
 
         listeners: {
             'click': 'toggle',
-            'loadHeaderData': 'setTableHeader',
-            'loadBodyData': 'setTableBody',
-            'loadTable': 'setTable'
+            'll-table-loadTableHeader': 'setTableHeader',
+            'll-table-loadTableBody': 'setTableBody',
+            'll-table-body-change': 'setTableBody',
+            'll-table-open-modal': 'openModal',
+            'loadCustomColumns': 'addCustomColumns',
+            'remove': 'removeAssociation'
         },
-
 
         // Element Lifecycle
 
         ready: function () {
             var fees = document.getElementById("fees");
+            this.fire('ll-table-ready');
 
-            function setHeader(headerData) {
-                console.log('getting header data', headerData);
-                this.header = headerData;
-                return this.body;
+        },
+
+        setTableHeader: function (data) {
+            data.header=headerData;
+            console.log('getting header data', headerData);
+            this.header = headerData;
+            return this.header;
+        },
+
+        setTableBody: function (data) {
+            data.items=bodyData;
+            console.log('getting body data', bodyData);
+            this.body = bodyData;
+            return this.body;
+        },
+
+        addCustomColumns: function(options) {
+            if (options.remove) {
+                _addRemoveButton();
             }
-            function setTableBody(bodyData) {
-                console.log('getting body data', bodyData);
-                this.body = bodyData;
-                return this.body;
+            if(options.add) {
+                _addAddButton();
             }
-
-            this.header = [
-                {name: 'Property', configName: 'property'},
-                {name: 'Unit', configName: 'unit'},
-                {name: 'Floor Plan', configName: 'floorplan'},
-                {name: 'Bedrooms', configName: 'bedrooms'},
-                {name: 'Bathrooms', configName: 'bathrooms'},
-                {name: 'Occupancy', configName: 'occupancy'}
-            ];
-
-            this.body = [
-                {
-                    occupancy: "10",
-                    property: "Care Lane",
-                    unit: "Bear Lane #3",
-                    bathrooms: "9 Full",
-                    floorplan: "Condo",
-                    bedrooms: "5BR"
-                },
-                {
-                    property: "Bear Lane",
-                    unit: "Bear Lane #4",
-                    floorplan: "Mansion",
-                    bedrooms: "1BR",
-                    bathrooms: "2 Full",
-                    occupancy: "4"
-                },
-                {
-                    property: "Rusty Creek",
-                    unit: "Rusty Creek #2",
-                    floorplan: "Cabin",
-                    bedrooms: "2BR",
-                    bathrooms: "3 Full",
-                    occupancy: "8"
-                }
-            ];
         },
 
         openModal: function () {
@@ -407,6 +387,14 @@ Example:
 
         back: function () {
             this.panels.pop();
+        },
+
+        _addRemoveButton: function() {
+
+        },
+
+        _addAddButton: function() {
+
         },
 
         _filter: function (val) {
