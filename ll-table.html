@@ -344,20 +344,16 @@ Example:
         // Element Lifecycle
 
         ready: function () {
-            var fees = document.getElementById("fees");
             this.fire('ll-table-ready');
-
         },
 
-        setTableHeader: function (data) {
-            data.header=headerData;
+        setTableHeader: function (headerData) {
             console.log('getting header data', headerData);
             this.header = headerData;
             return this.header;
         },
 
-        setTableBody: function (data) {
-            data.items=bodyData;
+        setTableBody: function (bodyData) {
             console.log('getting body data', bodyData);
             this.body = bodyData;
             return this.body;
