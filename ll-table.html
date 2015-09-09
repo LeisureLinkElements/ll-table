@@ -236,8 +236,8 @@ Example:
                 <!--</div>-->
 
                 <tr>
-                    <template is="dom-repeat" items="{{header}}" as="header" value="{{header.configName}}">
-                        <th onclick="sort(header.configName)"><a href="#">{{header.name}}<span><iron-icon class="up" icon="icons:arrow-drop-up"></iron-icon>
+                    <template is="dom-repeat" items="{{header}}" as="header" value="{{header}}">
+                        <th onclick="sort(header.configName)"><a href="#">{{header.text}}<span><iron-icon class="up" icon="icons:arrow-drop-up"></iron-icon>
                             <iron-icon class="down" icon="icons:arrow-drop-down"></iron-icon></span>
                         </a></th>
                     </template>
@@ -273,8 +273,8 @@ Example:
 <script>
 
     Polymer({
-        format: function (header, item) {
-            return item[header.configName];
+        format: function (header, body) {
+            return body[header.text];
         },
 
         sort: function (val) {
@@ -292,10 +292,6 @@ Example:
             }
         },
 
-        work: function() {
-            console.log('ok, fine');
-        },
-
         is: 'll-table',
 
         properties: {
@@ -304,29 +300,16 @@ Example:
                 value: false
             },
 
-            pmcId: {
-                type: String,
-                value: ''
-            },
-
-            feeId: {
-                type: String,
-                value: ''
-            },
-
-            unitId: {
-                type: String,
-                value: ''
-            },
-
-            headerData: {
+            header: {
                 type: Object,
-                value: {}
+                reflectToAttribute: true,
+                notify: true
             },
 
-            bodyData: {
+            body: {
                 type: Array,
-                value: []
+                reflectToAttribute: true,
+                notify: true
             }
 
         },
@@ -335,6 +318,7 @@ Example:
             'click': 'toggle',
             'll-table-loadTableHeader': 'setTableHeader',
             'll-table-loadTableBody': 'setTableBody',
+            'll-table-attached': 'setTable',
             'll-table-body-change': 'setTableBody',
             'll-table-open-modal': 'openModal',
             'loadCustomColumns': 'addCustomColumns',
@@ -347,16 +331,19 @@ Example:
             this.fire('ll-table-ready');
         },
 
-        setTableHeader: function (headerData) {
-            console.log('getting header data', headerData);
-            this.header = headerData;
-            return this.header;
+        attached: function() {
+          this.fire('ll-table-attached');
         },
 
-        setTableBody: function (bodyData) {
-            console.log('getting body data', bodyData);
-            this.body = bodyData;
-            return this.body;
+        setTable: function() {
+            setTimeout(function() {
+              var header = this.header;
+              var body = this.body;
+              console.log('header: ', header);
+              console.log('body: ', body);
+              this._setTableHeader(header);
+              this._setTableBody(body);
+            }, 3000)
         },
 
         addCustomColumns: function(options) {
@@ -383,6 +370,18 @@ Example:
 
         back: function () {
             this.panels.pop();
+        },
+
+        _setTableHeader: function() {
+            console.log('getting header data', header);
+//            this.header = header;
+            return this.header;
+        },
+
+        _setTableBody: function() {
+            console.log('getting body data', body);
+//            this.body = body;
+            return this.body;
         },
 
         _addRemoveButton: function() {
@@ -414,11 +413,6 @@ Example:
 //                        return a.unit < b.unit ? -1 : 1;
 //                    };
 //            }
-//        },
-//
-//        initSort: function () {
-//            this._sort('property');
 //        }
-
     });
 </script>
