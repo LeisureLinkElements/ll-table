@@ -7,7 +7,6 @@
     <title>ll-table Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../ll-table.html">
-    <link rel="import" href="../../paper-dialog/paper-dialog.html">
 
     <style>
 
@@ -15,46 +14,7 @@
   </head>
   <body>
 
-    <ll-table id="table" header="{{header}}" body="{{body}}"></ll-table>
-
-
-    <script>
-      var header = {
-        unitName: {text: 'unit'},
-        floorPlan: {text: 'floorplan'},
-        bedrooms: {text: 'bedrooms'},
-        bathrooms: {text: 'bathrooms'},
-        occupancy: {text: 'occupancy'}
-      };
-
-      var body = [
-        {
-          occupancy: "10",
-          unitName: "Hope Lane #3",
-          bathrooms: "9 Full",
-          floorPlan: "Condo",
-          bedrooms: "5BR"
-        },
-        {
-          unitName: "Bear Lane #4",
-          floorPlan: "Mansion",
-          bedrooms: "1BR",
-          bathrooms: "2 Full",
-          occupancy: "4"
-        },
-        { unitName: "Rusty Creek #2",
-          floorPlan: "Cabin",
-          bedrooms: "2BR",
-          bathrooms: "3 Full",
-          occupancy: "8"
-        }
-      ];
-
-
-//      document.querySelector('apply').addEventListener('click', function() {
-//      });
-
-    </script>
+    <ll-table id="table"></ll-table>
 
   </body>
 </html>
