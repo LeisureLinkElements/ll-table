@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!--<script type="application/javascript" src="../lodash/lodash.js"></script>-->
 
 <link rel="import" href="../ll-theme/ll-theme.html">
+<link rel="import" href="../ll-theme/shared-styles.html">
 
 
 <!--
@@ -25,6 +26,22 @@ Example:
 @demo
 -->
 <dom-module id="ll-table">
+
+    <style include="shared-styles"></style>
+
+    <template>
+        <div class="table">
+            <div class="table-body">
+                <template is="dom-repeat" items="[[rows]]" as="row">
+                    <div class="table-row">
+                        <template is="dom-repeat" items="[[row.cols]]" as="col">
+                            <div class="table-cell">{{col.content}}</div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
 </dom-module>
 
 <script>
@@ -33,11 +50,20 @@ Example:
 
         is: 'll-table',
 
-        extends: 'table',
+        properties: {
+            rows: {
+                type: Array,
+                value: []
+            }
+        },
 
         // Element Lifecycle
 
         ready: function () {
+            this.rows = [
+                {cols: [{content:'row1-col1'},{content:'row1-col2'},{content:'row1-col3'}]},
+                {cols: [{content:'row2-col1'},{content:'row2-col2'},{content:'row2-col3'}]}
+            ];
             this.fire('ll-table-ready');
         },
 
