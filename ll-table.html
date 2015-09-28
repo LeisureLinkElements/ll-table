@@ -61,8 +61,16 @@ Example:
 
         ready: function () {
             this.rows = [
-                {cols: [{content:'row1-col1'},{content:'row1-col2'},{content:'row1-col3'}]},
-                {cols: [{content:'row2-col1'},{content:'row2-col2'},{content:'row2-col3'}]}
+                {cols: [
+                    {content:'row1-col1'},
+                    {content:'row1-col2'},
+                    {content:'row1-col3'}
+                ]},
+                {cols: [
+                    {content:'row2-col1'},
+                    {content:'row2-col2'},
+                    {content:'row2-col3'}
+                ]}
             ];
             this.fire('ll-table-ready');
         },
