@@ -15,6 +15,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../ll-theme/ll-theme.html">
 <link rel="import" href="../ll-theme/shared-styles.html">
 
+<script type="application/javascript" src="../lodash/lodash.js"></script>
+
 
 <!--
 An element providing a solution to no problem in particular.
@@ -41,10 +43,10 @@ Example:
                 </div>
             </template>
             <div class="table-body">
-                <template is="dom-repeat" items="[[cfg.rows]]" as="row">
-                    <div class="table-row" data-row-id$="[[row.id]]">
-                        <template is="dom-repeat" items="[[row.cels]]" as="cel">
-                            <div class="table-cell">[[cel.content]]</div>
+                <template is="dom-repeat" items="[[cfg.items]]" as="item">
+                    <div class="table-row" data-item-id$="[[item.id]]">
+                        <template is="dom-repeat" items="[[item.cells]]" as="cell">
+                            <div class="table-cell">[[cell.content]]</div>
                         </template>
                     </div>
                 </template>
@@ -80,10 +82,10 @@ Example:
                         content: 'DEL'
                     }
                 ],
-                rows: [
+                items: [
                     {
                         id: 'item1',
-                        cels: [
+                        cells: [
                             {content:'Charles'},
                             {content:'Koehl'},
                             {content:'18087782244'}
@@ -91,7 +93,7 @@ Example:
                     },
                     {
                         id: 'item2',
-                        cels: [
+                        cells: [
                             {content:'Darren'},
                             {content:'Levitt'},
                             {content:'12129998888'}
@@ -101,8 +103,8 @@ Example:
             };
             this.cfg.cols.forEach(function(col, colNum){
                 if(col.content) {
-                    _this.cfg.rows.forEach(function(row, rowNum){
-                       _this.cfg.rows[rowNum].cels[colNum] = {content: col.content};
+                    _this.cfg.items.forEach(function(item, itemNum){
+                       _this.cfg.items[itemNum].cells[colNum] = {content: col.content};
                     });
                 }
             });
