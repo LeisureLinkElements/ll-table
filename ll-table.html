@@ -31,11 +31,20 @@ Example:
 
     <template>
         <div class="table">
-            <div class="table-body">
-                <template is="dom-repeat" items="[[rows]]" as="row">
+            <template is="dom-if" if="{{cfg.headers}}">
+                <div class="table-header">
                     <div class="table-row">
-                        <template is="dom-repeat" items="[[row.cols]]" as="col">
-                            <div class="table-cell">{{col.content}}</div>
+                        <template is="dom-repeat" items="[[cfg.headers]]" as="header">
+                            <div class="table-cell">[[header.content]]</div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            <div class="table-body">
+                <template is="dom-repeat" items="[[cfg.rows]]" as="row">
+                    <div class="table-row">
+                        <template is="dom-repeat" items="[[row.cels]]" as="cel">
+                            <div class="table-cell">[[cel.content]]</div>
                         </template>
                     </div>
                 </template>
@@ -50,28 +59,34 @@ Example:
 
         is: 'll-table',
 
-        properties: {
-            rows: {
-                type: Array,
-                value: []
-            }
-        },
-
         // Element Lifecycle
 
         ready: function () {
-            this.rows = [
-                {cols: [
-                    {content:'row1-col1'},
-                    {content:'row1-col2'},
-                    {content:'row1-col3'}
-                ]},
-                {cols: [
-                    {content:'row2-col1'},
-                    {content:'row2-col2'},
-                    {content:'row2-col3'}
-                ]}
-            ];
+            this.cfg = {
+                headers: [
+                    {
+                        content:'col1'
+                    },
+                    {
+                        content:'col2'
+                    },
+                    {
+                        content:'col3'
+                    }
+                ],
+                rows: [
+                    {cels: [
+                        {content:'row1-col1'},
+                        {content:'row1-col2'},
+                        {content:'row1-col3'}
+                    ]},
+                    {cels: [
+                        {content:'row2-col1'},
+                        {content:'row2-col2'},
+                        {content:'row2-col3'}
+                    ]}
+                ]
+            };
             this.fire('ll-table-ready');
         },
 
