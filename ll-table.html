@@ -31,18 +31,18 @@ Example:
 
     <template>
         <div class="table">
-            <template is="dom-if" if="{{cfg.headers}}">
+            <template is="dom-if" if="{{cfg.cols}}">
                 <div class="table-header">
                     <div class="table-row">
-                        <template is="dom-repeat" items="[[cfg.headers]]" as="header">
-                            <div class="table-cell">[[header.content]]</div>
+                        <template is="dom-repeat" items="[[cfg.cols]]" as="col">
+                            <div class="table-cell">[[col.label]]</div>
                         </template>
                     </div>
                 </div>
             </template>
             <div class="table-body">
                 <template is="dom-repeat" items="[[cfg.rows]]" as="row">
-                    <div class="table-row">
+                    <div class="table-row" data-row-id$="[[row.id]]">
                         <template is="dom-repeat" items="[[row.cels]]" as="cel">
                             <div class="table-cell">[[cel.content]]</div>
                         </template>
@@ -63,35 +63,41 @@ Example:
 
         ready: function () {
             this.cfg = {
-                headers: [
+                cols: [
                     {
-                        content:'col1'
+                        label:'First'
                     },
                     {
-                        content:'col2'
+                        label:'Last'
                     },
                     {
-                        content:'col3'
+                        label:'Phone'
                     }
                 ],
                 rows: [
-                    {cels: [
-                        {content:'row1-col1'},
-                        {content:'row1-col2'},
-                        {content:'row1-col3'}
-                    ]},
-                    {cels: [
-                        {content:'row2-col1'},
-                        {content:'row2-col2'},
-                        {content:'row2-col3'}
-                    ]}
+                    {
+                        id: 'item1',
+                        cels: [
+                            {content:'Charles'},
+                            {content:'Koehl'},
+                            {content:'18087782244'}
+                        ]
+                    },
+                    {
+                        id: 'item2',
+                        cels: [
+                            {content:'Darren'},
+                            {content:'Levitt'},
+                            {content:'12129998888'}
+                        ]
+                    }
                 ]
             };
             this.fire('ll-table-ready');
         },
 
         attached: function() {
-          this.fire('ll-table-attached');
+            this.fire('ll-table-attached');
         }
 
     });
