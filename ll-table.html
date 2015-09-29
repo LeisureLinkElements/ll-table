@@ -51,6 +51,7 @@ Example:
             </div>
         </div>
     </template>
+
 </dom-module>
 
 <script>
@@ -62,16 +63,21 @@ Example:
         // Element Lifecycle
 
         ready: function () {
+            var _this = this;
             this.cfg = {
                 cols: [
                     {
-                        label:'First'
+                        label: 'First'
                     },
                     {
-                        label:'Last'
+                        label: 'Last'
                     },
                     {
-                        label:'Phone'
+                        label: 'Phone'
+                    },
+                    {
+                        label: 'Action',
+                        content: 'DEL'
                     }
                 ],
                 rows: [
@@ -93,6 +99,13 @@ Example:
                     }
                 ]
             };
+            this.cfg.cols.forEach(function(col, colNum){
+                if(col.content) {
+                    _this.cfg.rows.forEach(function(row, rowNum){
+                       _this.cfg.rows[rowNum].cels[colNum] = {content: col.content};
+                    });
+                }
+            });
             this.fire('ll-table-ready');
         },
 
