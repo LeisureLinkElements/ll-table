@@ -114,18 +114,34 @@ Example:
 
         is: 'll-table',
 
+        properties: {
+            cfg: Object
+        },
+
         // Element Lifecycle
 
         ready: function () {
+            this._setConfig(sampleData);
+            this.fire('ll-table-ready');
+        },
+
+        attached: function() {
+            this._addDynamicContent();
+            this.fire('ll-table-attached');
+        },
+
+        // Element Behavior
+
+        _setConfig: function(cfg) {
+            this.cfg = cfg;
             var _this = this;
-            this.cfg = sampleData;
 
             // If cellsContent key is set in any of this.cfg.cols,
             // set content of each cell in those columns accordingly:
             this.cfg.cols.forEach(function(col, colNum){
                 if(_.isObject(col.cellsContent)) {
                     _this.cfg.items.forEach(function(item, itemNum){
-                       _this.cfg.items[itemNum].cells[colNum] = _.cloneDeep(col.cellsContent);
+                        _this.cfg.items[itemNum].cells[colNum] = _.cloneDeep(col.cellsContent);
                     });
                 }
             });
@@ -136,57 +152,56 @@ Example:
                     _this.cfg.items[itemNum].cells[cellNum].id = _this._getCellId(item.id, cellNum);
                 });
             });
-            this.fire('ll-table-ready');
         },
 
-        attached: function() {
-            var
-                _this = this,
-                spec,
-                tableCell,
-                cellId,
-                polyment;
+        _addDynamicContent: function() {
+            if(_.isObject(this.cfg) && _.isArray(this.cfg.items)) {
+                var
+                    _this = this,
+                    spec,
+                    tableCell,
+                    cellId,
+                    polyment;
 
-            // Generate and attach special cell content:
-            this.cfg.items.forEach(function(item, itemNum){
-                _this.cfg.items[itemNum].cells.forEach(function(cell, cellNum){
-                    cellId = _this._getCellId(item.id, cellNum);
-                    if(_.isObject(cell.element) && _.isString(cell.element.tag)) {
-                        spec = cell.element;
-                        tableCell = Polymer.dom(_this.root).querySelector('#'+cellId);
-                        polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
-                        if(_.isArray(spec.classes)) {
-                            spec.classes.forEach(function(cls){
-                                polyment.classList.add(cls); // Don't overwrite polymer classes.
-                            });
+                // Generate and attach special cell content:
+                this.cfg.items.forEach(function (item, itemNum) {
+                    _this.cfg.items[itemNum].cells.forEach(function (cell, cellNum) {
+                        cellId = _this._getCellId(item.id, cellNum);
+                        if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
+                            spec = cell.element;
+                            tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
+                            polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
+                            if (_.isArray(spec.classes)) {
+                                spec.classes.forEach(function (cls) {
+                                    polyment.classList.add(cls); // Don't overwrite polymer classes.
+                                });
+                            }
+                            if (_.isObject(spec.attributes)) {
+                                _.forEach(spec.attributes, function (val, name) {
+                                    polyment.setAttribute(name, val);
+                                });
+                            }
+                            if (_.isString(spec.innerHTML)) {
+                                Polymer.dom(polyment).innerHTML = spec.innerHTML;
+                            }
+                            if (_.isArray(spec.events)) {
+                                spec.events.forEach(function (evtCfg) {
+                                    if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
+                                        polyment.addEventListener(evtCfg.in, function () {
+                                            evtCfg.itemId = item.id;
+                                            _this._handleCellEvent(evtCfg);
+                                        });
+                                    }
+                                });
+                            }
                         }
-                        if(_.isObject(spec.attributes)) {
-                            _.forEach(spec.attributes, function(val, name){
-                                polyment.setAttribute(name, val);
-                            });
-                        }
-                        if(_.isString(spec.innerHTML)) {
-                            Polymer.dom(polyment).innerHTML = spec.innerHTML;
-                        }
-                        if(_.isArray(spec.events)) {
-                            spec.events.forEach(function (evtCfg) {
-                                if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
-                                    polyment.addEventListener(evtCfg.in, function () {
-                                        evtCfg.itemId = item.id;
-                                        _this._handleCellEvent(evtCfg);
-                                    });
-                                }
-                            });
-                        }
-                    }
+                    });
                 });
-            });
-            this.fire('ll-table-attached');
+            }
         },
-
-        // Element Behavior
 
         _handleCellEvent: function(evtCfg) {
+            console.log(evtCfg);
             this.fire(evtCfg.out, evtCfg);
         },
 
