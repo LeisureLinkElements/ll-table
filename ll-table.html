@@ -176,7 +176,8 @@ Example:
                     spec,
                     tableCell,
                     cellId,
-                    polyment;
+                    polyment,
+                    eventInfo;
 
                 // Generate and attach special cell content:
                 this.cfg.items.forEach(function (item, itemNum) {
@@ -202,9 +203,13 @@ Example:
                             if (_.isArray(spec.events)) {
                                 spec.events.forEach(function (evtCfg) {
                                     if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
-                                        polyment.addEventListener(evtCfg.in, function () {
-                                            evtCfg.itemId = item.id;
-                                            _this._handleCellEvent(evtCfg);
+                                        polyment.addEventListener(evtCfg.in, function (evt) {
+                                            eventInfo = {
+                                                itemId: item.id,
+                                                config: _.cloneDeep(evtCfg),
+                                                targetAttributes: _this._getEventElementAttributes(evt)
+                                            };
+                                            _this._handleCellEvent(eventInfo);
                                         });
                                     }
                                 });
@@ -215,13 +220,32 @@ Example:
             }
         },
 
-        _handleCellEvent: function(evtCfg) {
-            console.log(evtCfg);
-            this.fire(evtCfg.out, evtCfg);
+        _handleCellEvent: function(eventInfo) {
+            console.log(eventInfo);
+            this.fire(eventInfo.config.out, eventInfo);
         },
 
         _getCellId: function(itemId, cellNum){
             return 'itm-'+itemId+'-c'+cellNum;
+        },
+
+        /**
+         * Return object with useful information about an event's target
+         *
+         * @param   {object}  evt
+         * @returns {object}
+         */
+        _getEventElementAttributes: function(evt) {
+            evt = evt || window.event;
+            if(!_.isObject(evt)) return attr;
+            var elem = evt.target || evt.srcElement;
+            var attr = {};
+            attrNodeMap = Array.prototype.slice.call(elem.attributes);
+            attrNodeMap.forEach(function(node){
+                attr[node.name] = node.value;
+            });
+            attr.checked = elem.checked;
+            return attr;
         }
 
     });
