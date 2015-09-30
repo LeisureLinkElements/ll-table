@@ -297,7 +297,41 @@ Example:
          * @return {array)
          */
         _getItemIds: function(column) {
-
+            var ids = [] ;
+            try {
+                collectConfig = this.cfg.cols[column].content.element.collect;
+            }
+            catch (e) {
+                console.log('No collection configuration found for "'+column+'" column. Aborting search for ids.');
+                return ids;
+            }
+            if(_.isObject(collectConfig)){
+                var
+                    _this = this,
+                    cellId,
+                    elemTag,
+                    elem,
+                    attribs;
+                this.cfg.items.forEach(function(item, itemNum){
+                    try {
+                        elemTag = item.cells[column].element.tag;
+                    }
+                    catch (e) {
+                        console.log('No column element config found for item ' + itemNum + '.');
+                    }
+                    if (_.isString(elemTag)) {
+                        cellId = _this._getCellId(item.id, column);
+                        elem = _this.$$('#' + cellId + ' > ' + elemTag);
+                        if (_.isObject(elem)) {
+                            attribs = _this._getElementAttributes(elem);
+                            if (attribs[collectConfig.attribute] === collectConfig.value) {
+                                ids.push(item.id);
+                            }
+                        }
+                    }
+                });
+            }
+            return ids;
         }
 
     });
