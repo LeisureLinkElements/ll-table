@@ -133,17 +133,13 @@ Example:
         // Element Lifecycle
 
         ready: function () {
-            this._setConfig(sampleData);
             this.fire('ll-table-ready');
+            this._setConfig(sampleData);
         },
 
         attached: function() {
-            this.attached = true;
+            this.fire('ll-table-attached');
             this._addDynamicContent();
-        },
-
-        detached: function() {
-            this.attached = false;
         },
 
         // Element Behavior
