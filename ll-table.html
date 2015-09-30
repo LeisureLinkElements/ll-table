@@ -155,6 +155,8 @@ Example:
         attached: function() {
             this.fire('ll-table-attached');
             this._addDynamicContent();
+
+            // console.log(this._getItemIds('assoc'));
         },
 
         // Element Behavior
@@ -256,8 +258,8 @@ Example:
         },
 
         _handleCellEvent: function(eventInfo) {
-            console.log(eventInfo);
             this.fire(eventInfo.config.out, eventInfo);
+            console.log('Fired "'+eventInfo.config.out+'" with ',eventInfo);
         },
 
         _getCellId: function(itemId, colName){
