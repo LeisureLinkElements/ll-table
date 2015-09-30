@@ -94,17 +94,28 @@ Example:
             {
                 id: 'c8ske82k',
                 cells: [
-                    {html:'Charles'}, // If content is a string, it's used as inner-html.
-                    {html:'Koehl'},
-                    {html:'18087782244'}
+                    'Charles', // If content is a string, it's used as inner-html.
+                    {element: {
+                        tag: 'input',
+                        attributes:{
+                            type: 'checkbox'
+                        },
+                        events: [
+                            {
+                                in: 'change',
+                                out: 'checkbox-changed'
+                            }
+                        ]
+                    }},
+                    '18087782244'
                 ]
             },
             {
                 id: 'skjd39ss',
                 cells: [
-                    {html:'Darren'},
-                    {html:'Levitt'},
-                    {html:'12129998888'}
+                    'Darren',
+                    'Levitt',
+                    '12129998888'
                 ]
             }
         ]
@@ -151,16 +162,15 @@ Example:
                 }
             });
 
-            // Assign an id to each cell:
+            // Assign an id to each cell, converting cells with just string content to objects.
             _this.cfg.items.forEach(function(item, itemNum){
                 _this.cfg.items[itemNum].cells.forEach(function(cell, cellNum){
+                    if(_.isString(cell)) {
+                        _this.cfg.items[itemNum].cells[cellNum] = {html:cell};
+                    }
                     _this.cfg.items[itemNum].cells[cellNum].id = _this._getCellId(item.id, cellNum);
                 });
             });
-
-            if(this.attached) {
-                this._addDynamicContent();
-            }
         },
 
         _addDynamicContent: function() {
