@@ -115,7 +115,8 @@ Example:
         is: 'll-table',
 
         properties: {
-            cfg: Object
+            cfg: Object,
+            attached: Boolean
         },
 
         // Element Lifecycle
@@ -126,8 +127,12 @@ Example:
         },
 
         attached: function() {
+            this.attached = true;
             this._addDynamicContent();
-            this.fire('ll-table-attached');
+        },
+
+        detached: function() {
+            this.attached = false;
         },
 
         // Element Behavior
@@ -152,6 +157,10 @@ Example:
                     _this.cfg.items[itemNum].cells[cellNum].id = _this._getCellId(item.id, cellNum);
                 });
             });
+
+            if(this.attached) {
+                this._addDynamicContent();
+            }
         },
 
         _addDynamicContent: function() {
