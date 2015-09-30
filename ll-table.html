@@ -192,11 +192,12 @@ Example:
                     }
                     _this.cfg.items[itemNum].cells[colName].id = _this._getCellId(item.id, colName);
                 });
-                _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells);
+                _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
             });
 
-            // Set cfg.colVals and cfg.cellVals for template to render:
-            this.cfg.colVals = _.values(this.cfg.cols);
+            this.cfg.colVals = _.values(this.cfg.cols); // For template
+
+            console.log(this.cfg);
         },
 
         _addDynamicContent: function() {
