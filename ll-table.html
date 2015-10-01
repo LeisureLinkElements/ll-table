@@ -263,7 +263,7 @@ Example:
          */
         _getItemIds: function() {
             var ids = [];
-            if(this.selectedItems) {
+            if(_.isArray(this.selectedItems)) {
                 this.selectedItems.forEach(function(item) {
                     ids.push(item.id);
                 });
