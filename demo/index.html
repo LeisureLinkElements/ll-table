@@ -6,15 +6,34 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>ll-table Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="sample-data.js"></script>
     <link rel="import" href="../ll-table.html">
 
     <style>
-
+        button {
+            display:block;
+            margin:20px auto;
+            border-radius:5px;
+        }
+        h2 {
+            text-align:center;
+            margin:20px auto;
+        }
     </style>
+
+      <script>
+          window.demoGetIds = function() {
+              alert('IDs of selected rows: ' + document.getElementById('table')._getItemIds('assoc').join(', '));
+          };
+      </script>
   </head>
   <body>
 
     <ll-table id="table"></ll-table>
+
+  <button onclick="window.demoGetIds()">Show item IDs of rows with checked boxes.</button>
+
+  <h2>Watch console for event firings.</h2>
 
   </body>
 </html>
