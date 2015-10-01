@@ -68,16 +68,19 @@ var sampleData = {
         last: {
           element: {
           tag: 'span',
-          innerHTML: 'DEL',
+          innerHTML: 'Fun',
           classes: [
-            'glyphicon',
-            'glyphicon-remove-sign',
-            'remove-unit'
+            'btn',
+            'btn-warning'
           ],
           events: [
             {
               in: 'click',
-              out: 'remove'
+              out: 'fun-click'
+            },
+            {
+              in: 'mouseover',
+              out: 'fun\'s over'
             }
           ]
         }},
