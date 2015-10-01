@@ -4,7 +4,7 @@
   "authors": [
     "Charles Koehl <ckoehl@leisurelink.com>"
   ],
-  "description": "Extends html table element to be data-driven.",
+  "description": "Data-driven table generator with some interesting features.",
   "keywords": [
     "web-component",
     "web-components",
@@ -13,7 +13,7 @@
   ],
   "main": "ll-table.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "homepage": "https://github.com/LeisureLinkElements/ll-table",
   "ignore": [
     "/.*",
     "/test/",
