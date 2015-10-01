@@ -9,7 +9,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
@@ -18,39 +18,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Step 1: import the element to test -->
     <link rel="import" href="../ll-table.html">
-  </head>
-  <body>
+</head>
+<body>
 
-    <!-- You can use the document as a place to set up your fixtures. -->
-    <ll-table></ll-table>
+<!-- You can use the document as a place to set up your fixtures. -->
+<ll-table></ll-table>
 
-    <script>
-      var myEl = document.querySelector('ll-table');
+<script>
+    var myEl = document.querySelector('ll-table');
 
-      suite('<ll-table>', function() {
+    suite('<ll-table>', function() {
 
-        test('defines the "author" property', function() {
-          assert.equal(myEl.author.name, 'Dimitri Glazkov');
-          assert.equal(myEl.author.image, 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg');
+        test('validates minimal configuration', function() {
+            assert.equal(myEl._validateConfig({items:[]}), true);
         });
 
-        test('says hello', function() {
-          assert.equal(myEl.sayHello(), 'll-table says, Hello World!');
-
-          var greetings = myEl.sayHello('greetings Earthlings');
-          assert.equal(greetings, 'll-table says, greetings Earthlings');
+        test('generates custom list of element attributes', function() {
+            var testEl = document.createElement('input');
+            testEl.setAttribute('type','checkbox');
+            testEl.setAttribute('name','tesla');
+            testEl.setAttribute('checked',true);
+            var attribs = myEl._getElementAttributes(testEl);
+            assert.equal(attribs.type, 'checkbox');
+            assert.equal(attribs.name, 'tesla');
+            assert.equal(attribs.checked, true);
         });
 
-        test('fires lasers', function(done) {
-          myEl.addEventListener('ll-table-lasers', function(event) {
-            assert.equal(event.detail.sound, 'Pew pew!');
+        test('generates valid cell ids', function(done) {
+            assert.equal(myEl._getCellId('uwjh83u','name'), 'itm-uwjh83u-c-name');
             done();
-          });
-          myEl.fireLasers();
         });
 
-      });
-    </script>
+    });
+</script>
 
-  </body>
+</body>
 </html>
