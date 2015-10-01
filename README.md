@@ -39,6 +39,8 @@ And you can run it via:
 Once running, you can preview your element at
 `http://localhost:8080/components/ll-table/`, where `ll-table` is the name of the directory containing it.
 
+Mess around with /demo/sample-data.js
+
 
 ## Testing Your Element
 
