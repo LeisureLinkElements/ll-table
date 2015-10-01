@@ -244,6 +244,7 @@ Example:
         toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
+            console.log('Selected IDs: '+this._getItemIds());
         },
 
         /**
