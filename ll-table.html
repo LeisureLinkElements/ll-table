@@ -24,12 +24,12 @@ Example:
     <ll-table></ll-table>
 
 ### Features:
-- **Configuration-driven:** Generates and updates entire table from a single json object.
-- **Table-less markup:** Table is built with divs and css, not a table element.
+- **Configuration-driven:** Generates and updates entire table from a single json object. Dynamic insertion and deletion of individual rows is not supported.
 - **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements.
 - **Configuration-generated elements with event firing:** Generate any html element within a cell by setting an html tag and optional attributes, class list, inner-html, and list of event in/out pairs. The element listens for the "in" event and fires the corresponding "out" event with a data object containing the item ID, the event's configuration, and all element attributes (including a pseudo 'checked' attribute for checkboxes). Currently, only single, non-nested elements are supported.
 - **Column-wide repeating content:** Populate an entire column of cells with the same static or generated element by defining it in the column's configuration.
-- **Configurable item ID collection:** For columns configured with repeating custom elements (such as check-boxes), you can configure how the '_getItemIds' method generates a list of item IDs filtered by the value of a particular attribute of each element in the column. You specify the attribute and the attribute value to filter by in the column configuration. For example, you could generate one list of item IDs based on which check-boxes are checked the 'Taxable' column, and another list of item IDs based on which check-boxes are checked the 'Freaky' column.
+- **Configurable item ID selection and collection:** When a column definition contains an itemSelector node, the entire column of cells is populated with corresponding UI used to maintain an array of item IDs within the top-level "selectedItemIds" property. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'assoc' key to true in the cfg.items[..].cells objects. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
+- **Table-less markup:** Table is built with divs and css, not a table element.
 - **Column headers are optional.**
 
 @demo
@@ -40,23 +40,27 @@ Example:
 
     <template>
         <div class="table">
-            <template is="dom-if" if="{{cfg.colVals}}">
+            <template is="dom-if" if="{{hasHeaders}}">
                 <div class="table-header">
                     <div class="table-row">
-                        <template is="dom-repeat" items="[[cfg.colVals]]" as="col">
-                            <div class="table-cell">[[col.label]]</div>
+                        <template is="dom-repeat" items="[[cfg.colVals]]">
+                            <div class="table-cell">[[item.label]]</div>
                         </template>
                     </div>
                 </div>
             </template>
             <div class="table-body">
-                <template is="dom-repeat" items="[[cfg.items]]" as="item">
+                <template is="dom-repeat" id="tableItems" items="[[cfg.items]]">
                     <div class="table-row">
                         <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
-                            <div class="table-cell" id="[[cell.id]]">[[cell.html]]</div>
+                            <div class="table-cell" id="[[cell.id]]">
+                                <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
+                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="toggleItemSelection"></template>
+                            </div>
                         </template>
                     </div>
                 </template>
+                <array-selector id="itemSelector" items="{{cfg.items}}" selected="{{selectedItems}}" multi toggle></array-selector>
             </div>
         </div>
     </template>
@@ -96,32 +100,36 @@ Example:
                 console.log('Raw config:', cfg);
             }
 
-            var _this = this;
+            var _this = this, cellContent, itemSelectorCfg;
 
             // If content key is set in any column config,
             // copy the content config to each cell config in the column.
-            var cellContent;
-            this.cfg.hasHeaders = false;
+            this.hasHeaders = false;
             _.forEach(this.cfg.cols, function (col, colName) {
                 if(_.isString(col.label)) {
-                    _this.cfg.hasHeaders = true;
+                    this.hasHeaders = true;
                 }
-                if (_.isObject(col.content)) {
-                    _this.cfg.items.forEach(function (item, itemNum) {
-                        // If the cell's config already has a value for this column,
-                        // and there is a collect attribute set for an element config in the column,
-                        // set that attribute with that value in the cell's attributes config:
-                        cellContent = _.cloneDeep(col.content);
-                        if(!_.isUndefined(item.cells[colName]) && _.isObject(cellContent.element.collect)) {
-                            cellContent.element.attributes = _.assign({},cellContent.element.attributes);
-                            cellContent.element.attributes[cellContent.element.collect.attribute] = item.cells[colName];
+                _this.cfg.items.forEach(function (item, itemNum) {
+                    if (_.isObject(col.content)) {
+                        if(col.content.itemSelector) {
+                            itemSelectorCfg = {};
+                            itemSelectorCfg[col.content.itemSelector.type] = true;
+                            cellContent = {
+                                itemSelector: itemSelectorCfg
+                            };
+                        } else {
+                            cellContent = _.cloneDeep(col.content);
                         }
                         _this.cfg.items[itemNum].cells[colName] = cellContent;
-                    });
-                }
+                    }
+                });
             });
 
-            // Assign an id to each cell, converting cells with just string content to objects:
+            if(this.hasHeaders) {
+                this.cfg.colVals = _.values(this.cfg.cols); // For template
+            }
+
+            // Assign an id to each cell (for future use), converting cells with just string content to objects:
             this.cfg.items.forEach(function (item, itemNum) {
                 _.forEach(item.cells, function (cell, colName) {
                     if (_.isString(cell)) {
@@ -131,10 +139,6 @@ Example:
                 });
                 _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
             });
-
-            if(this.cfg.hasHeaders) {
-                this.cfg.colVals = _.values(this.cfg.cols); // For template
-            }
             if(this.dev) {
                 console.log('Converted config:', this.cfg);
             }
@@ -237,43 +241,20 @@ Example:
             return attr;
         },
 
+        toggleItemSelection: function(e) {
+            var item = this.$.tableItems.itemForElement(e.target);
+            this.$.itemSelector.select(item);
+        },
+
         /**
          * Return array of item id strings based on the 'collect' configuration of a column.
          * @param {string} column
          */
         _getItemIds: function(column) {
-            var ids = [] ;
-            try {
-                var collectConfig = this.cfg.cols[column].content.element.collect;
-            }
-            catch (e) {
-                console.log('No collection configuration found for "'+column+'" column. Aborting search for ids.');
-                return ids;
-            }
-            if(_.isObject(collectConfig)){
-                var
-                    _this = this,
-                    cellId,
-                    elemTag,
-                    elem,
-                    attribs;
-                this.cfg.items.forEach(function(item, itemNum){
-                    try {
-                        elemTag = item.cells[column].element.tag;
-                    }
-                    catch (e) {
-                        console.log('No column element config found for item ' + itemNum + '.');
-                    }
-                    if (_.isString(elemTag)) {
-                        cellId = _this._getCellId(item.id, column);
-                        elem = _this.$$('#' + cellId + ' > ' + elemTag);
-                        if (_.isObject(elem)) {
-                            attribs = _this._getElementAttributes(elem);
-                            if (attribs[collectConfig.attribute] === collectConfig.value) {
-                                ids.push(item.id);
-                            }
-                        }
-                    }
+            var ids = [];
+            if(this.selectedItems) {
+                this.selectedItems.forEach(function(item) {
+                    ids.push(item.id);
                 });
             }
             return ids;

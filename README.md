@@ -4,12 +4,12 @@ Data-driven table generator.
 
 Features:
 
-- **Configuration-driven:** Generates and updates entire table from a single json object.
-- **Table-less markup:** Table is built with divs and css, not a table element.
+- **Configuration-driven:** Generates and updates entire table from a single json object. Dynamic insertion and deletion of individual rows is not supported.
 - **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements.
 - **Configuration-generated elements with event firing:** Generate any html element within a cell by setting an html tag and optional attributes, class list, inner-html, and list of event in/out pairs. The element listens for the "in" event and fires the corresponding "out" event with a data object containing the item ID, the event's configuration, and all element attributes (including a pseudo 'checked' attribute for checkboxes). Currently, only single, non-nested elements are supported.
 - **Column-wide repeating content:** Populate an entire column of cells with the same static or generated element by defining it in the column's configuration.
-- **Configurable item ID collection:** For columns configured with repeating custom elements (such as check-boxes), you can configure how the '_getItemIds' method generates a list of item IDs filtered by the value of a particular attribute of each element in the column. You specify the attribute and the attribute value to filter by in the column configuration. For example, you could generate one list of item IDs based on which check-boxes are checked the 'Taxable' column, and another list of item IDs based on which check-boxes are checked the 'Freaky' column.  
+- **Configurable item ID selection and collection:** When a column definition contains an itemSelector node, the entire column of cells is populated with corresponding UI used to maintain an array of item IDs within the top-level "selectedItemIds" property. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'assoc' key to true in the cfg.items[..].cells objects. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
+- **Table-less markup:** Table is built with divs and css, not a table element.
 - **Column headers are optional.**
 
 
