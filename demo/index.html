@@ -28,16 +28,11 @@
                   evt.target._setConfig(sampleData);
               }
           });
-          window.demoGetIds = function() {
-              alert('IDs of selected rows: ' + document.getElementById('table')._getItemIds('assoc').join(', '));
-          };
       </script>
   </head>
   <body>
 
-    <ll-table id="table" dev="true"></ll-table>
-
-  <button onclick="window.demoGetIds()">Show item IDs of rows with "Assoc" boxes checked.</button>
+    <ll-table id="table"></ll-table>
 
   <h2>Watch console for event firings!</h2>
 
