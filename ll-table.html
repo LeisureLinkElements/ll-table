@@ -31,7 +31,7 @@ Example:
 - **Configurable item ID selection and collection:** When a column definition contains an itemSelector node, the entire column of cells is populated with corresponding UI used to maintain an array of item IDs within the top-level "selectedItemIds" property. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'assoc' key to true in the cfg.items[..].cells objects. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
 - **Column headers are optional.**
-- **'dev' attribute:** Set 'dev' attribute to true on ll-table to output debugging messages to console.
+- **DEV mode:** Set 'dev' attribute to true to output debugging messages to console.
 
 @demo
 -->
@@ -108,7 +108,7 @@ Example:
             this.hasHeaders = false;
             _.forEach(this.cfg.cols, function (col, colName) {
                 if(_.isString(col.label)) {
-                    this.hasHeaders = true;
+                    _this.hasHeaders = true;
                 }
                 _this.cfg.items.forEach(function (item, itemNum) {
                     if (_.isObject(col.content)) {
@@ -245,7 +245,9 @@ Example:
         toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
-            console.log('Selected IDs: '+this._getItemIds());
+            if(this.dev) {
+                console.log('Selected IDs: ' + this._getItemIds());
+            }
         },
 
         /**
