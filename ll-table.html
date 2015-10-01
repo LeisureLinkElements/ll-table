@@ -65,26 +65,23 @@ Example:
 
 <script>
 
-    var sampleData = sampleData || null;
-
     Polymer({
 
         is: 'll-table',
+
+        properties: {
+            dev: Boolean
+        },
 
         // Element Lifecycle
 
         ready: function () {
             this.fire('ll-table-ready');
-            if(_.isObject(sampleData)) {
-                this._setConfig(sampleData);
-            }
         },
 
         attached: function() {
             this.fire('ll-table-attached');
             this._addDynamicContent();
-
-            // console.log(this._getItemIds('assoc'));
         },
 
         // Element Behavior
@@ -93,9 +90,11 @@ Example:
             if(!this._validateConfig(cfg)) {
                 return;
             }
-            this.cfg = cfg;
+            this.cfg = _.cloneDeep(cfg);
 
-            console.log('Raw config:',this.cfg);
+            if(this.dev) {
+                console.log('Raw config:', cfg);
+            }
 
             var _this = this;
 
@@ -136,8 +135,9 @@ Example:
             if(this.cfg.hasHeaders) {
                 this.cfg.colVals = _.values(this.cfg.cols); // For template
             }
-
-            console.log('Converted config:',this.cfg);
+            if(this.dev) {
+                console.log('Converted config:', this.cfg);
+            }
         },
 
         _validateConfig: function(cfg) {
@@ -204,7 +204,9 @@ Example:
 
         _handleCellEvent: function(eventInfo) {
             this.fire(eventInfo.config.out, eventInfo);
-            console.log('Fired "'+eventInfo.config.out+'" with ',eventInfo);
+            if(this.dev) {
+                console.log('Fired "' + eventInfo.config.out + '" with ', eventInfo);
+            }
         },
 
         _getCellId: function(itemId, colName){

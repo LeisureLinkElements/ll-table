@@ -1,4 +1,4 @@
-var sampleData = {
+window.sampleData = {
   cols: {
     assoc: {
       label: 'Assoc',
