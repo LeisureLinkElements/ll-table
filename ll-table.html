@@ -75,7 +75,13 @@ Example:
         is: 'll-table',
 
         properties: {
-            dev: Boolean
+            dev: Boolean,
+            selectedItemIDs: {
+                type: Array,
+                value: function() {
+                    return [];
+                }
+            }
         },
 
         // Element Lifecycle
@@ -245,8 +251,9 @@ Example:
         toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
+            this.selectedItemIDs = this._getItemIds();
             if(this.dev) {
-                console.log('Selected IDs: ' + this._getItemIds());
+                console.log('Selected IDs: ' + this.selectedItemIDs.join(', '));
             }
         },
 
@@ -254,7 +261,7 @@ Example:
          * Return array of item id strings based on the 'collect' configuration of a column.
          * @param {string} column
          */
-        _getItemIds: function(column) {
+        _getItemIds: function() {
             var ids = [];
             if(this.selectedItems) {
                 this.selectedItems.forEach(function(item) {
