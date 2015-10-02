@@ -117,9 +117,7 @@ Example:
             }
             this.cfg = _.cloneDeep(cfg);
 
-            if(this.dev) {
-                console.log('Raw config:', cfg);
-            }
+            this._log('setConfig called with', cfg);
 
             var _this = this, cellContent, itemSelectorCfg;
 
@@ -198,6 +196,9 @@ Example:
         _addDynamicContent: function() {
 
             if(this.isValidConfig(this.cfg) && this.hasBeenAttached) {
+
+                this._log('_addDynamicContent proceeding');
+
                 var
                     _this = this,
                     spec,
@@ -249,6 +250,8 @@ Example:
                         }
                     });
                 });
+
+                this._log('_addDynamicContent done');
             }
 
         },
@@ -290,21 +293,24 @@ Example:
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
             this.selectedItemIDs = this._getSelectedItemIds();
-            if(this.dev) {
-                console.log('Selected IDs: ' + this.selectedItemIDs.join(', '));
-            }
+            this._log('Selected IDs: ' + this.selectedItemIDs.join(', '));
         },
 
         _doFire: function(type, detail, options) {
             this.fire(type, detail, options);
+            this._log(this.name + ' fired "' + type + '"');
+            if(detail) {
+                this._log('...with detail', detail);
+            }
+            if(options) {
+                this._log('...with options', options);
+            }
+        },
+
+        _log: function(msg, obj) {
+            obj = obj || '';
             if(this.dev) {
-                console.log(this.name + ' fired "' + type + '"');
-                if(detail) {
-                    console.log('...with detail', detail);
-                }
-                if(options) {
-                    console.log('...with options', options);
-                }
+                console.log(msg, obj);
             }
         }
 
