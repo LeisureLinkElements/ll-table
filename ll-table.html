@@ -100,7 +100,7 @@ Example:
         },
 
         attached: function() {
-            this.attachedBeenAttached = true;
+            this.hasBeenAttached = true;
             this._doFire('ll-table-attached');
             this._addDynamicContent();
         },
@@ -199,7 +199,7 @@ Example:
 
         _addDynamicContent: function() {
 
-            if(this.isValidConfig(this.cfg) && this.attachedBeenAttached) {
+            if(this.isValidConfig(this.cfg) && this.hasBeenAttached) {
                 var
                     _this = this,
                     spec,
