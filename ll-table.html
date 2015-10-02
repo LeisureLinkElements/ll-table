@@ -78,8 +78,10 @@ Example:
             // Set to true to output debugging messages to console.
             dev: Boolean,
             // IDs of selected items.
-            selectedItemIDs: {
+            selectedItemIds: {
                 type: Array,
+                readOnly: true,
+                notify: true,
                 value: function() {
                     return [];
                 }
