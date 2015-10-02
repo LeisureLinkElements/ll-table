@@ -102,7 +102,7 @@ Example:
         attached: function() {
             this.hasBeenAttached = true;
             this._doFire('ll-table-attached');
-            this._addDynamicContent();
+            this.async(this._addDynamicContent);
         },
 
         // Element Behavior
@@ -160,10 +160,8 @@ Example:
                 });
                 _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
             });
-            if(this.dev) {
-                console.log('Converted config:', this.cfg);
-            }
-            this._addDynamicContent();
+            this._log('setConfig converted config to', this.cfg);
+            this.async(this._addDynamicContent);
             return true;
         },
 
