@@ -26,7 +26,7 @@ Example:
 ### Features:
 - **Configuration-driven:** Generates and updates entire table from a single json object. Dynamic insertion and deletion of individual rows is not supported.
 - **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements.
-- **Configuration-generated elements with event firing:** Generate any html element within a cell by setting an html tag and optional attributes, class list, inner-html, and list of event in/out pairs. The element listens for the "in" event and fires the corresponding "out" event with a data object containing the item ID, the event's configuration, and all element attributes (including a pseudo 'checked' attribute for checkboxes). Currently, only single, non-nested elements are supported.
+- **Configuration-generated elements with event firing:** Generate any html element within a cell by setting an html tag and optional attributes, class list, inner-html, and list of event in/out pairs. The element listens for the "in" event and fires the corresponding "out" event with a data object containing the either the item ID only, or an object containing the event's configuration, and all element attributes (including a pseudo 'checked' attribute for checkboxes). Currently, only single, non-nested elements are supported.
 - **Column-wide repeating content:** Populate an entire column of cells with the same static content or generated element by defining it in the column's configuration.
 - **Column-wide item selection UI:** When a column definition contains an itemSelector node, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'assoc' key to true in the cfg.items[..].cells objects. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
@@ -75,7 +75,9 @@ Example:
         is: 'll-table',
 
         properties: {
+            // Set to true to output debugging messages to console.
             dev: Boolean,
+            // IDs of selected items.
             selectedItemIDs: {
                 type: Array,
                 value: function() {
@@ -97,8 +99,12 @@ Example:
 
         // Element Behavior
 
-        _setConfig: function(cfg) {
-            if(!this._validateConfig(cfg)) {
+        /**
+         * Sets table configuration and data.
+         * @param {object} cfg
+         */
+        setConfig: function(cfg) {
+            if(!this.isValidConfig(cfg)) {
                 return;
             }
             this.cfg = _.cloneDeep(cfg);
