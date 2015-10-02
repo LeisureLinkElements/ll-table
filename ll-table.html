@@ -100,6 +100,7 @@ Example:
         },
 
         attached: function() {
+            this.attached = true;
             this._doFire('ll-table-attached');
             this._addDynamicContent();
         },
@@ -162,6 +163,7 @@ Example:
             if(this.dev) {
                 console.log('Converted config:', this.cfg);
             }
+            this._addDynamicContent();
             return true;
         },
 
@@ -197,7 +199,7 @@ Example:
 
         _addDynamicContent: function() {
 
-            if(this.isValidConfig(this.cfg)) {
+            if(this.isValidConfig(this.cfg) && this.attached) {
                 var
                     _this = this,
                     spec,
