@@ -75,6 +75,11 @@ Example:
         is: 'll-table',
 
         properties: {
+            // Currently used only in dev mode debugging messages.
+            name: {
+                type: String,
+                value: 'll-table'
+            },
             // IDs of selected items.
             selectedItemIds: {
                 type: Array,
@@ -84,7 +89,7 @@ Example:
                     return [];
                 }
             },
-            // Set to true to output debugging messages to console.
+            // Set to true to activate dev mode to output debugging messages to console.
             dev: Boolean
         },
 
@@ -293,7 +298,7 @@ Example:
         _doFire: function(type, detail, options) {
             this.fire(type, detail, options);
             if(this.dev) {
-                console.log('Fired "' + type + '"');
+                console.log(this.name + ' fired "' + type + '"');
                 if(detail) {
                     console.log('...with detail', detail);
                 }
