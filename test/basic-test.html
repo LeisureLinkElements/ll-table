@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('<ll-table>', function() {
 
         test('validates minimal configuration', function() {
-            assert.equal(myEl._validateConfig({items:[]}), true);
+            assert.equal(myEl.isValidConfig({items:[]}), true);
         });
 
         test('generates custom list of element attributes', function() {

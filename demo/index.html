@@ -25,7 +25,7 @@
       <script>
           window.addEventListener('ll-table-ready',function(evt){
               if(_.isObject(window.sampleData)) {
-                  evt.target._setConfig(sampleData);
+                  evt.target.setConfig(sampleData);
               }
           });
       </script>

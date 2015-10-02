@@ -56,7 +56,7 @@ Example:
                         <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
                             <div class="table-cell" id="[[cell.id]]">
                                 <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
-                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="toggleItemSelection"></template>
+                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="_toggleItemSelection"></template>
                             </div>
                         </template>
                     </div>
@@ -151,13 +151,32 @@ Example:
             }
         },
 
-        _validateConfig: function(cfg) {
+        /**
+         * Returns array of item ids.
+         * @param {string} column
+         */
+        _getItemIds: function() {
+            var ids = [];
+            if(_.isArray(this.selectedItems)) {
+                this.selectedItems.forEach(function(item) {
+                    ids.push(item.id);
+                });
+            }
+            return ids;
+        },
+
+
+        /**
+         * Returns true if cfg is valid configuration.
+         * @param {object} cfg
+         */
+        isValidConfig: function(cfg) {
             return _.isObject(cfg) && _.isArray(cfg.items);
         },
 
         _addDynamicContent: function() {
 
-            if(this._validateConfig(this.cfg)) {
+            if(this.isValidConfig(this.cfg)) {
                 var
                     _this = this,
                     spec,
@@ -248,27 +267,13 @@ Example:
             return attr;
         },
 
-        toggleItemSelection: function(e) {
+        _toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
             this.selectedItemIDs = this._getItemIds();
             if(this.dev) {
                 console.log('Selected IDs: ' + this.selectedItemIDs.join(', '));
             }
-        },
-
-        /**
-         * Return array of item id strings based on the 'collect' configuration of a column.
-         * @param {string} column
-         */
-        _getItemIds: function() {
-            var ids = [];
-            if(_.isArray(this.selectedItems)) {
-                this.selectedItems.forEach(function(item) {
-                    ids.push(item.id);
-                });
-            }
-            return ids;
         }
 
     });
