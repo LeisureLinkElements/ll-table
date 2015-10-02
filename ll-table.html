@@ -85,7 +85,9 @@ Example:
                 value: function() {
                     return [];
                 }
-            }
+            },
+            // Set to true to output debugging messages to console.
+            dev: Boolean
         },
 
         // Element Lifecycle
@@ -182,6 +184,10 @@ Example:
             return _.isObject(cfg) && _.isArray(cfg.items);
         },
 
+        /**
+         * Returns true if cfg is valid configuration and has one or more items.
+         * @param {object} cfg
+         */
         hasItems: function(cfg) {
             return this.isValidConfig(cfg) && cfg.items.length;
         },
