@@ -182,6 +182,10 @@ Example:
             return _.isObject(cfg) && _.isArray(cfg.items);
         },
 
+        hasItems: function(cfg) {
+            return this.isValidConfig(cfg) && cfg.items.length;
+        },
+
         _addDynamicContent: function() {
 
             if(this.isValidConfig(this.cfg)) {
