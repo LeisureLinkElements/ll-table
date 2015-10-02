@@ -34,7 +34,8 @@ window.sampleData = {
           events: [
             {
               in: 'click',
-              out: 'remove'
+              out: 'remove-unit',
+              itemIdOnly: true
             }
           ]
         }
@@ -69,11 +70,12 @@ window.sampleData = {
           events: [
             {
               in: 'click',
-              out: 'fun-click'
+              out: 'clicking-sends-full-data'
             },
             {
               in: 'mouseover',
-              out: 'fun-over'
+              out: 'mouseover-sends-just-item-id',
+              itemIdOnly: true
             }
           ]
         }},

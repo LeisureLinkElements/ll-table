@@ -239,9 +239,11 @@ Example:
         },
 
         _handleCellEvent: function(eventInfo) {
-            this.fire(eventInfo.config.out, eventInfo);
+            var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
+            this.fire(eventInfo.config.out, data);
             if(this.dev) {
-                console.log('Fired "' + eventInfo.config.out + '" with ', eventInfo);
+                var dataDisplay = _.isString(data) ? '"'+data+'"' : data;
+                console.log('Fired "' + eventInfo.config.out + '" with', dataDisplay);
             }
         },
 
