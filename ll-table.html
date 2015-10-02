@@ -91,11 +91,11 @@ Example:
         // Element Lifecycle
 
         ready: function () {
-            this.fire('ll-table-ready');
+            this._doFire('ll-table-ready');
         },
 
         attached: function() {
-            this.fire('ll-table-attached');
+            this._doFire('ll-table-attached');
             this._addDynamicContent();
         },
 
@@ -250,11 +250,7 @@ Example:
 
         _handleCellEvent: function(eventInfo) {
             var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
-            this.fire(eventInfo.config.out, data);
-            if(this.dev) {
-                var dataDisplay = _.isString(data) ? '"'+data+'"' : data;
-                console.log('Fired "' + eventInfo.config.out + '" with', dataDisplay);
-            }
+            this._doFire(eventInfo.config.out, data);
         },
 
         _getCellId: function(itemId, colName){
@@ -291,6 +287,19 @@ Example:
             this.selectedItemIDs = this._getSelectedItemIds();
             if(this.dev) {
                 console.log('Selected IDs: ' + this.selectedItemIDs.join(', '));
+            }
+        },
+
+        _doFire: function(type, detail, options) {
+            this.fire(type, detail, options);
+            if(this.dev) {
+                console.log('Fired "' + type + '"');
+                if(detail) {
+                    console.log('...with detail', detail);
+                }
+                if(options) {
+                    console.log('...with options', options);
+                }
             }
         }
 
