@@ -164,10 +164,10 @@ Example:
 
         _addDynamicContentAfterTemplateCompletion: function() {
             var _this = this;
-            _this._log('waiting for last table cell to be created...');
+            _this._log('Waiting for last table cell to be created...');
             this.dynamicContentWaiter = window.setInterval(function() {
                 if(window.document.querySelector('#'+_this.lastCellId) !== null) {
-                    _this._log('last table cell #'+_this.lastCellId+' created');
+                    _this._log('Last table cell #'+_this.lastCellId+' created.');
                     _this._addDynamicContent();
                 }
             },20);
