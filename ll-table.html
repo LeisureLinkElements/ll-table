@@ -177,7 +177,7 @@ Example:
          * Returns array of item ids.
          * @param {string} column
          */
-        _getSelectedItemIds: function() {
+        _getselectedItemIds: function() {
             var ids = [];
             if(_.isArray(this.selectedItems)) {
                 this.selectedItems.forEach(function(item) {
@@ -304,8 +304,8 @@ Example:
         _toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
-            this.selectedItemIDs = this._getSelectedItemIds();
-            this._log('Selected IDs: ' + this.selectedItemIDs.join(', '));
+            this.selectedItemIds = this._getselectedItemIds();
+            this._log('Selected IDs: ' + this.selectedItemIds.join(', '));
         },
 
         _doFire: function(type, detail, options) {
