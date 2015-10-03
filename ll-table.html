@@ -84,7 +84,7 @@ Example:
             selectedItemIds: {
                 type: Array,
                 readOnly: true,
-                notify: true,
+                observer: '_selectedItemIdsChanged',
                 value: function() {
                     return [];
                 }
@@ -305,7 +305,10 @@ Example:
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
             this._setSelectedItemIds(this._getSelectedItemIds());
-            this._log('Selected IDs: ' + this.selectedItemIds.join(', '));
+        },
+
+        _selectedItemIdsChanged: function(newValue, oldValue) {
+            this._doFire(this.name + '-selected-items-changed', newValue);
         },
 
         _doFire: function(type, detail, options) {
