@@ -1,7 +1,6 @@
 window.sampleData = {
   cols: {
     assoc: {
-      label: 'Assoc',
       content: {
         itemSelector: { // See README for more info.
           type: 'checkbox'
