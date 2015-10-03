@@ -310,19 +310,22 @@ Example:
 
         _doFire: function(type, detail, options) {
             this.fire(type, detail, options);
-            this._log(this.name + ' fired "' + type + '"');
+            this._log('fired "' + type + '"');
             if(detail) {
-                this._log('...with detail', detail);
+                this._log('...with detail', detail, false);
             }
             if(options) {
-                this._log('...with options', options);
+                this._log('...with options', options, false);
             }
         },
 
-        _log: function(msg, obj) {
-            obj = obj || '';
+        _log: function(msg, obj, withName) {
             if(this.dev) {
-                console.log(msg, obj);
+                withName = _.isBoolean(withName) ? withName : true;
+                if(withName) {
+                    msg = this.name + ': ' + msg;
+                }
+                console.log(msg, obj || '');
             }
         }
 
