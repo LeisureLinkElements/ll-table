@@ -308,7 +308,7 @@ Example:
         },
 
         _selectedItemIdsChanged: function(newValue, oldValue) {
-            this._doFire(this.name + '-selected-items-changed', newValue);
+            this._doFire(_.kebabCase(this.name) + '-selected-items-changed', newValue);
         },
 
         _doFire: function(type, detail, options) {
