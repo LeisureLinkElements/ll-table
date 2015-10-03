@@ -183,20 +183,6 @@ Example:
         },
 
         /**
-         * Returns array of item ids.
-         * @param {string} column
-         */
-        _getSelectedItemIds: function() {
-            var ids = [];
-            if(_.isArray(this.selectedItems)) {
-                this.selectedItems.forEach(function(item) {
-                    ids.push(item.id);
-                });
-            }
-            return ids;
-        },
-
-        /**
          * Returns true if cfg is valid configuration.
          * @param {object} cfg
          */
@@ -310,10 +296,48 @@ Example:
             return attr;
         },
 
+        /**
+         * Returns array of item ids.
+         * @param {string} column
+         */
+        _getSelectedItemIds: function() {
+            var ids = [];
+            if(_.isArray(this.selectedItems)) {
+                this.selectedItems.forEach(function(item) {
+                    ids.push(item.id);
+                });
+            }
+            return ids;
+        },
+
         _toggleItemSelection: function(e) {
             var item = this.$.tableItems.itemForElement(e.target);
             this.$.itemSelector.select(item);
+            this._updateSelectedItemIds();
+        },
+
+        _toggleItemSelectionAll: function(e) {
+            var _this = this, selectorItem;
+            Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function(selectorEl){
+                selectorItem = _this.$.tableItems.itemForElement(selectorEl);
+                _this.$.itemSelector.deselect(selectorItem);
+                selectorEl.checked = e.target.checked;
+                if(e.target.checked) {
+                    _this.$.itemSelector.select(selectorItem);
+                }
+            });
+            this._updateSelectedItemIds();
+        },
+
+        _updateItemSelectorAll: function() {
+            if(this.cfg && _.isArray(this.cfg.items) && _.isArray(this.selectedItems)) {
+                document.getElementById('itemSelectorAll').checked = this.selectedItems.length === this.cfg.items.length;
+            }
+        },
+
+        _updateSelectedItemIds: function() {
             this._setSelectedItemIds(this._getSelectedItemIds());
+            this._updateItemSelectorAll();
         },
 
         _selectedItemIdsChanged: function(newValue, oldValue) {
