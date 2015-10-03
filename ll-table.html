@@ -45,7 +45,10 @@ Example:
                 <div class="table-header">
                     <div class="table-row">
                         <template is="dom-repeat" items="[[cfg.colVals]]">
-                            <div class="table-cell">[[item.label]]</div>
+                            <div class="table-cell">
+                                <template is="dom-if" if="{{item.label}}">[[item.label]]</template>
+                                <template is="dom-if" if="{{item.itemSelector.checkbox}}"><input type="checkbox" id="itemSelectorAll" on-change="_toggleItemSelectionAll"></template>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -56,7 +59,7 @@ Example:
                         <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
                             <div class="table-cell" id="[[cell.id]]">
                                 <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
-                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="_toggleItemSelection"></template>
+                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="_toggleItemSelection" class="item-selector"></template>
                             </div>
                         </template>
                     </div>
