@@ -100,9 +100,8 @@ Example:
         },
 
         attached: function() {
-            this.hasBeenAttached = true;
             this._doFire('ll-table-attached');
-            this.async(this._addDynamicContent);
+            this._addDynamicContentAfterTemplateCompletion();
         },
 
         // Element Behavior
@@ -148,19 +147,30 @@ Example:
                 this.cfg.colVals = _.values(this.cfg.cols); // For template
             }
 
-            // Assign an id to each cell (for future use), converting cells with just string content to objects:
+            // Assign an id to each cell, converting cells with just string content to objects:
             this.cfg.items.forEach(function (item, itemNum) {
                 _.forEach(item.cells, function (cell, colName) {
                     if (!_.isObject(cell)) {
                         _this.cfg.items[itemNum].cells[colName] = {html: _(cell).toString()};
                     }
-                    _this.cfg.items[itemNum].cells[colName].id = _this._getCellId(item.id, colName);
+                    _this.lastCellId = _this._getCellId(item.id, colName);
+                    _this.cfg.items[itemNum].cells[colName].id = _this.lastCellId;
                 });
                 _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
             });
             this._log('setConfig converted config to', this.cfg);
-            this.async(this._addDynamicContent);
             return true;
+        },
+
+        _addDynamicContentAfterTemplateCompletion: function() {
+            var _this = this;
+            _this._log('waiting for last table cell to be created...');
+            this.dynamicContentWaiter = window.setInterval(function() {
+                if(window.document.querySelector('#'+_this.lastCellId) !== null) {
+                    _this._log('last table cell #'+_this.lastCellId+' created');
+                    _this._addDynamicContent();
+                }
+            },20);
         },
 
         /**
@@ -195,7 +205,9 @@ Example:
 
         _addDynamicContent: function() {
 
-            if(this.isValidConfig(this.cfg) && this.hasBeenAttached) {
+            window.clearInterval(this.dynamicContentWaiter);
+
+            if(this.isValidConfig(this.cfg)) {
 
                 this._log('_addDynamicContent proceeding');
 
