@@ -121,34 +121,32 @@ Example:
 
             this._log('setConfig called with', cfg);
 
-            var _this = this, cellContent, itemSelectorCfg;
+            var _this = this, cellContent, colVal;
 
             // If content key is set in any column config,
             // copy the content config to each cell config in the column.
             this.hasHeaders = false;
+            this.cfg.colVals = [];
             _.forEach(this.cfg.cols, function (col, colName) {
+                colVal = {label:''};
                 if(_.isString(col.label)) {
                     _this.hasHeaders = true;
+                    colVal = _.cloneDeep(col);
                 }
                 _this.cfg.items.forEach(function (item, itemNum) {
                     if (_.isObject(col.content)) {
                         if(col.content.itemSelector) {
-                            itemSelectorCfg = {};
-                            itemSelectorCfg[col.content.itemSelector.type] = true;
-                            cellContent = {
-                                itemSelector: itemSelectorCfg
-                            };
+                            cellContent = _this._getItemSelectorCellContent(col.content.itemSelector);
+                            _this.hasHeaders = true;
                         } else {
                             cellContent = _.cloneDeep(col.content);
                         }
                         _this.cfg.items[itemNum].cells[colName] = cellContent;
+                        colVal = cellContent;
                     }
                 });
+                _this.cfg.colVals.push(colVal);
             });
-
-            if(this.hasHeaders) {
-                this.cfg.colVals = _.values(this.cfg.cols); // For template
-            }
 
             // Assign an id to each cell, converting cells with just string content to objects:
             this.cfg.items.forEach(function (item, itemNum) {
@@ -163,6 +161,14 @@ Example:
             });
             this._log('setConfig converted config to', this.cfg);
             return true;
+        },
+
+        _getItemSelectorCellContent: function(itemSelector) {
+            var itemSelectorCfg = {};
+            itemSelectorCfg[itemSelector.type] = true;
+            return {
+                itemSelector: itemSelectorCfg
+            };
         },
 
         _addDynamicContentAfterTemplateCompletion: function() {
