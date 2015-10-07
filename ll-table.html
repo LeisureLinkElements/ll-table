@@ -95,25 +95,21 @@ Example:
       // IDs of selected items.
       selectedItemIds: {
         type: Array,
-        readOnly: true,
         observer: '_selectedItemIdsChanged',
         value: function () {
           return [];
         }
-      },
-
-      // Set to true to activate dev mode to output debugging messages to console.
-      dev: Boolean
+      }
     },
 
     // Element Lifecycle
 
     ready: function () {
-      this._fireLogFire('ready');
+      this._fireLog('ready');
     },
 
     attached: function () {
-      this._fireLogFire('attached');
+      this._fireLog('attached');
       this._addDynamicContentAfterTemplateCompletion();
     },
 
