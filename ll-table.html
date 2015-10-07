@@ -11,6 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 
 <link rel="import" href="../ll-theme/ll-theme.html">
+<link rel="import" href="../ll-firelog-behavior/ll-firelog-behavior.html">
 <link rel="import" href="../ll-theme/shared-styles.html">
 
 <script type="application/javascript" src="../lodash/lodash.js"></script>
@@ -84,13 +85,7 @@ Example:
 
     properties: {
 
-      // Currently used only in dev mode debugging messages.
-      name: {
-        type: String,
-        value: 'll-table'
-      },
-
-      rawConfig: {
+      config: {
         type: Object,
         observer: '_setConfig'
       },
@@ -112,15 +107,17 @@ Example:
     // Element Lifecycle
 
     ready: function () {
-      this._doFire('ll-table-ready');
+      this._fireLog('ll-table-ready');
     },
 
     attached: function () {
-      this._doFire('ll-table-attached');
+      this._fireLog('ll-table-attached');
       this._addDynamicContentAfterTemplateCompletion();
     },
 
     // Element Behavior
+
+    behaviors: [FireLogBehavior],
 
     /**
      * Sets table configuration and data.
@@ -128,10 +125,10 @@ Example:
      */
     _setConfig: function (newConfig) {
 
-      this._log('_setConfig called with', newConfig);
+      this._fireLog('_setConfig called with', newConfig);
 
       if (!this.isValidConfig(newConfig)) {
-        this._log('Invalid config!');
+        this._fireLog('Invalid config!');
         return false;
       }
       this.cfg = _.cloneDeep(newConfig);
@@ -174,7 +171,7 @@ Example:
         });
         _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
       });
-      this._log('setConfig converted config to', this.cfg);
+      this._fireLog('setConfig converted config to', this.cfg);
       return true;
     },
 
@@ -188,10 +185,10 @@ Example:
 
     _addDynamicContentAfterTemplateCompletion: function () {
       var _this = this;
-      _this._log('Waiting for last table cell to be created...');
+      _this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
         if (window.document.querySelector('#' + _this.lastCellId) !== null) {
-          _this._log('Last table cell #' + _this.lastCellId + ' created.');
+          _this._fireLog('Last table cell #' + _this.lastCellId + ' created.');
           _this._addDynamicContent();
         }
       }, 20);
@@ -219,7 +216,7 @@ Example:
 
       if (this.isValidConfig(this.cfg)) {
 
-        this._log('_addDynamicContent proceeding');
+        this._fireLog('_addDynamicContent proceeding');
 
         var
             _this = this,
@@ -273,14 +270,14 @@ Example:
           });
         });
 
-        this._log('_addDynamicContent done');
+        this._fireLog('_addDynamicContent done');
       }
 
     },
 
     _handleCellEvent: function (eventInfo) {
       var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
-      this._doFire(eventInfo.config.out, data);
+      this._fireLogFire(eventInfo.config.out, data);
     },
 
     _getCellId: function (itemId, colName) {
@@ -356,28 +353,7 @@ Example:
     },
 
     _selectedItemIdsChanged: function (newValue, oldValue) {
-      this._doFire(_.kebabCase(this.name) + '-selected-items-changed', newValue);
-    },
-
-    _doFire: function (type, detail, options) {
-      this.fire(type, detail, options);
-      this._log('fired "' + type + '"');
-      if (detail) {
-        this._log('...with detail', detail, false);
-      }
-      if (options) {
-        this._log('...with options', options, false);
-      }
-    },
-
-    _log: function (msg, obj, withName) {
-      if (this.dev) {
-        withName = _.isBoolean(withName) ? withName : true;
-        if (withName) {
-          msg = this.name + ': ' + msg;
-        }
-        console.log(msg, obj || '');
-      }
+      this._fireLogFire('selected-items-changed', newValue);
     }
 
   });

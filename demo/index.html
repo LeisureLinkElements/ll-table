@@ -25,14 +25,14 @@
       <script>
           window.addEventListener('ll-table-ready',function(evt){
               if(evt.target && _.isObject(window.sampleData)) {
-                  evt.target.rawConfig = sampleData;
+                  evt.target.config = window.sampleData;
               }
           });
       </script>
   </head>
   <body>
 
-    <ll-table id="table" dev="true"></ll-table>
+    <ll-table id="table" fireLoggingEnabled fireLogName="ll-table-demo"></ll-table>
 
   <h2>Watch console for event firings!</h2>
 
