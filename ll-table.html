@@ -11,8 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 
 <link rel="import" href="../ll-theme/ll-theme.html">
-<link rel="import" href="../ll-firelog-behavior/ll-firelog-behavior.html">
 <link rel="import" href="../ll-theme/shared-styles.html">
+<link rel="import" href="../ll-firelog-behavior/ll-firelog-behavior.html">
 
 <script type="application/javascript" src="../lodash/lodash.js"></script>
 
@@ -83,6 +83,8 @@ Example:
 
     is: 'll-table',
 
+    behaviors: [FireLogBehavior],
+
     properties: {
 
       config: {
@@ -107,17 +109,15 @@ Example:
     // Element Lifecycle
 
     ready: function () {
-      this._fireLog('ll-table-ready');
+      this._fireLogFire('ready');
     },
 
     attached: function () {
-      this._fireLog('ll-table-attached');
+      this._fireLogFire('attached');
       this._addDynamicContentAfterTemplateCompletion();
     },
 
     // Element Behavior
-
-    behaviors: [FireLogBehavior],
 
     /**
      * Sets table configuration and data.
