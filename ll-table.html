@@ -37,333 +37,348 @@ Example:
 -->
 <dom-module id="ll-table">
 
-    <style include="shared-styles"></style>
+  <style include="shared-styles"></style>
 
-    <template>
-        <div class="table">
-            <template is="dom-if" if="{{hasHeaders}}">
-                <div class="table-header">
-                    <div class="table-row">
-                        <template is="dom-repeat" items="[[cfg.colVals]]">
-                            <div class="table-cell">
-                                <template is="dom-if" if="{{item.label}}">[[item.label]]</template>
-                                <template is="dom-if" if="{{item.itemSelector.checkbox}}"><input type="checkbox" id="itemSelectorAll" on-change="_toggleItemSelectionAll"></template>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </template>
-            <div class="table-body">
-                <template is="dom-repeat" id="tableItems" items="[[cfg.items]]">
-                    <div class="table-row">
-                        <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
-                            <div class="table-cell" id="[[cell.id]]">
-                                <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
-                                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox" on-change="_toggleItemSelection" class="item-selector"></template>
-                            </div>
-                        </template>
-                    </div>
+  <template>
+    <div class="table">
+      <template is="dom-if" if="{{hasHeaders}}">
+        <div class="table-header">
+          <div class="table-row">
+            <template is="dom-repeat" items="[[cfg.colVals]]">
+              <div class="table-cell">
+                <template is="dom-if" if="{{item.label}}">[[item.label]]</template>
+                <template is="dom-if" if="{{item.itemSelector.checkbox}}"><input type="checkbox" id="itemSelectorAll"
+                                                                                 on-change="_toggleItemSelectionAll">
                 </template>
-                <array-selector id="itemSelector" items="{{cfg.items}}" selected="{{selectedItems}}" multi toggle></array-selector>
-            </div>
+              </div>
+            </template>
+          </div>
         </div>
-    </template>
+      </template>
+      <div class="table-body">
+        <template is="dom-repeat" id="tableItems" items="[[cfg.items]]">
+          <div class="table-row">
+            <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
+              <div class="table-cell" id="[[cell.id]]">
+                <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
+                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
+                                                                                 on-change="_toggleItemSelection"
+                                                                                 class="item-selector"></template>
+              </div>
+            </template>
+          </div>
+        </template>
+        <array-selector id="itemSelector" items="{{cfg.items}}" selected="{{selectedItems}}" multi
+                        toggle></array-selector>
+      </div>
+    </div>
+  </template>
 
 </dom-module>
 
 <script>
 
-    Polymer({
+  Polymer({
 
-        is: 'll-table',
+    is: 'll-table',
 
-        properties: {
-            // Currently used only in dev mode debugging messages.
-            name: {
-                type: String,
-                value: 'll-table'
-            },
-            // IDs of selected items.
-            selectedItemIds: {
-                type: Array,
-                readOnly: true,
-                observer: '_selectedItemIdsChanged',
-                value: function() {
-                    return [];
-                }
-            },
-            // Set to true to activate dev mode to output debugging messages to console.
-            dev: Boolean
-        },
+    properties: {
 
-        // Element Lifecycle
+      // Currently used only in dev mode debugging messages.
+      name: {
+        type: String,
+        value: 'll-table'
+      },
 
-        ready: function () {
-            this._doFire('ll-table-ready');
-        },
+      rawConfig: {
+        type: Object,
+        observer: '_setConfig'
+      },
 
-        attached: function() {
-            this._doFire('ll-table-attached');
-            this._addDynamicContentAfterTemplateCompletion();
-        },
-
-        // Element Behavior
-
-        /**
-         * Sets table configuration and data.
-         * @param {object} cfg
-         */
-        setConfig: function(cfg) {
-            if(!this.isValidConfig(cfg)) {
-                return false;
-            }
-            this.cfg = _.cloneDeep(cfg);
-
-            this._log('setConfig called with', cfg);
-
-            var _this = this, cellContent, colVal;
-
-            // If content key is set in any column config,
-            // copy the content config to each cell config in the column.
-            this.hasHeaders = false;
-            this.cfg.colVals = [];
-            _.forEach(this.cfg.cols, function (col, colName) {
-                colVal = {label:''};
-                if(_.isString(col.label)) {
-                    _this.hasHeaders = true;
-                    colVal = _.cloneDeep(col);
-                }
-                _this.cfg.items.forEach(function (item, itemNum) {
-                    if (_.isObject(col.content)) {
-                        if(col.content.itemSelector) {
-                            cellContent = _this._getItemSelectorCellContent(col.content.itemSelector);
-                            _this.hasHeaders = true;
-                        } else {
-                            cellContent = _.cloneDeep(col.content);
-                        }
-                        _this.cfg.items[itemNum].cells[colName] = cellContent;
-                        colVal = cellContent;
-                    }
-                });
-                _this.cfg.colVals.push(colVal);
-            });
-
-            // Assign an id to each cell, converting cells with just string content to objects:
-            this.cfg.items.forEach(function (item, itemNum) {
-                _.forEach(item.cells, function (cell, colName) {
-                    if (!_.isObject(cell)) {
-                        _this.cfg.items[itemNum].cells[colName] = {html: _(cell).toString()};
-                    }
-                    _this.lastCellId = _this._getCellId(item.id, colName);
-                    _this.cfg.items[itemNum].cells[colName].id = _this.lastCellId;
-                });
-                _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
-            });
-            this._log('setConfig converted config to', this.cfg);
-            return true;
-        },
-
-        _getItemSelectorCellContent: function(itemSelector) {
-            var itemSelectorCfg = {};
-            itemSelectorCfg[itemSelector.type] = true;
-            return {
-                itemSelector: itemSelectorCfg
-            };
-        },
-
-        _addDynamicContentAfterTemplateCompletion: function() {
-            var _this = this;
-            _this._log('Waiting for last table cell to be created...');
-            this.dynamicContentWaiter = window.setInterval(function() {
-                if(window.document.querySelector('#'+_this.lastCellId) !== null) {
-                    _this._log('Last table cell #'+_this.lastCellId+' created.');
-                    _this._addDynamicContent();
-                }
-            },20);
-        },
-
-        /**
-         * Returns true if cfg is valid configuration.
-         * @param {object} cfg
-         */
-        isValidConfig: function(cfg) {
-            return _.isObject(cfg) && _.isArray(cfg.items);
-        },
-
-        /**
-         * Returns true if cfg is valid configuration and has one or more items.
-         * @param {object} cfg
-         */
-        hasItems: function(cfg) {
-            return this.isValidConfig(cfg) && cfg.items.length;
-        },
-
-        _addDynamicContent: function() {
-
-            window.clearInterval(this.dynamicContentWaiter);
-
-            if(this.isValidConfig(this.cfg)) {
-
-                this._log('_addDynamicContent proceeding');
-
-                var
-                    _this = this,
-                    spec,
-                    tableCell,
-                    cellId,
-                    polyment,
-                    eventInfo;
-
-                this.cfg.items.forEach(function (item) {
-                    _.forEach(item.cells, function(cell, colName){
-                        cellId = _this._getCellId(item.id, colName);
-                        if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
-                            spec = cell.element;
-                            tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
-                            polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
-                            if (_.isArray(spec.classes)) {
-                                spec.classes.forEach(function (cls) {
-                                    polyment.classList.add(cls); // Don't overwrite polymer classes.
-                                });
-                            }
-                            if (_.isObject(spec.attributes)) {
-                                _.forEach(spec.attributes, function (val, name) {
-                                    if(name == 'checked') {
-                                        if(val) {
-                                            polyment.checked = 'checked';
-                                        }
-                                    } else {
-                                        polyment.setAttribute(name, val);
-                                    }
-                                });
-                            }
-                            if (_.isString(spec.innerHTML)) {
-                                Polymer.dom(polyment).innerHTML = spec.innerHTML;
-                            }
-                            if (_.isArray(spec.events)) {
-                                spec.events.forEach(function (evtCfg) {
-                                    if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
-                                        polyment.addEventListener(evtCfg.in, function (evt) {
-                                            eventInfo = {
-                                                itemId: item.id,
-                                                config: _.cloneDeep(evtCfg),
-                                                targetAttributes: _this._getEventElementAttributes(evt)
-                                            };
-                                            _this._handleCellEvent(eventInfo);
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    });
-                });
-
-                this._log('_addDynamicContent done');
-            }
-
-        },
-
-        _handleCellEvent: function(eventInfo) {
-            var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
-            this._doFire(eventInfo.config.out, data);
-        },
-
-        _getCellId: function(itemId, colName){
-            return 'itm-'+itemId+'-c-'+colName;
-        },
-
-        /**
-         * Return object with useful information about an event's target
-         *
-         * @param   {object}  evt
-         * @returns {object}
-         */
-        _getEventElementAttributes: function(evt) {
-            evt = evt || window.event;
-            if(!_.isObject(evt)) return {};
-            var elem = evt.target || evt.srcElement;
-            return this._getElementAttributes(elem);
-        },
-
-        _getElementAttributes: function(elem) {
-            var attr = {};
-            if(!_.isObject(elem)) return attr;
-            var attrNodeMap = Array.prototype.slice.call(elem.attributes);
-            attrNodeMap.forEach(function(node){
-                attr[node.name] = node.value;
-            });
-            attr.checked = elem.checked;
-            return attr;
-        },
-
-        /**
-         * Returns array of item ids.
-         * @param {string} column
-         */
-        _getSelectedItemIds: function() {
-            var ids = [];
-            if(_.isArray(this.selectedItems)) {
-                this.selectedItems.forEach(function(item) {
-                    ids.push(item.id);
-                });
-            }
-            return ids;
-        },
-
-        _toggleItemSelection: function(e) {
-            var item = this.$.tableItems.itemForElement(e.target);
-            this.$.itemSelector.select(item);
-            this._updateSelectedItemIds();
-        },
-
-        _toggleItemSelectionAll: function(e) {
-            var _this = this, selectorItem;
-            Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function(selectorEl){
-                selectorItem = _this.$.tableItems.itemForElement(selectorEl);
-                _this.$.itemSelector.deselect(selectorItem);
-                selectorEl.checked = e.target.checked;
-                if(e.target.checked) {
-                    _this.$.itemSelector.select(selectorItem);
-                }
-            });
-            this._updateSelectedItemIds();
-        },
-
-        _updateItemSelectorAll: function() {
-            if(this.cfg && _.isArray(this.cfg.items) && _.isArray(this.selectedItems)) {
-                document.getElementById('itemSelectorAll').checked = this.selectedItems.length === this.cfg.items.length;
-            }
-        },
-
-        _updateSelectedItemIds: function() {
-            this._setSelectedItemIds(this._getSelectedItemIds());
-            this._updateItemSelectorAll();
-        },
-
-        _selectedItemIdsChanged: function(newValue, oldValue) {
-            this._doFire(_.kebabCase(this.name) + '-selected-items-changed', newValue);
-        },
-
-        _doFire: function(type, detail, options) {
-            this.fire(type, detail, options);
-            this._log('fired "' + type + '"');
-            if(detail) {
-                this._log('...with detail', detail, false);
-            }
-            if(options) {
-                this._log('...with options', options, false);
-            }
-        },
-
-        _log: function(msg, obj, withName) {
-            if(this.dev) {
-                withName = _.isBoolean(withName) ? withName : true;
-                if(withName) {
-                    msg = this.name + ': ' + msg;
-                }
-                console.log(msg, obj || '');
-            }
+      // IDs of selected items.
+      selectedItemIds: {
+        type: Array,
+        readOnly: true,
+        observer: '_selectedItemIdsChanged',
+        value: function () {
+          return [];
         }
+      },
 
-    });
+      // Set to true to activate dev mode to output debugging messages to console.
+      dev: Boolean
+    },
+
+    // Element Lifecycle
+
+    ready: function () {
+      this._doFire('ll-table-ready');
+    },
+
+    attached: function () {
+      this._doFire('ll-table-attached');
+      this._addDynamicContentAfterTemplateCompletion();
+    },
+
+    // Element Behavior
+
+    /**
+     * Sets table configuration and data.
+     * @param {object} cfg
+     */
+    _setConfig: function (newConfig) {
+
+      this._log('_setConfig called with', newConfig);
+
+      if (!this.isValidConfig(newConfig)) {
+        this._log('Invalid config!');
+        return false;
+      }
+      this.cfg = _.cloneDeep(newConfig);
+
+      var _this = this, cellContent, colVal;
+
+      // If content key is set in any column config,
+      // copy the content config to each cell config in the column.
+      this.hasHeaders = false;
+      this.cfg.colVals = [];
+      _.forEach(this.cfg.cols, function (col, colName) {
+        colVal = {label: ''};
+        if (_.isString(col.label)) {
+          _this.hasHeaders = true;
+          colVal = _.cloneDeep(col);
+        }
+        _this.cfg.items.forEach(function (item, itemNum) {
+          if (_.isObject(col.content)) {
+            if (col.content.itemSelector) {
+              cellContent = _this._getItemSelectorCellContent(col.content.itemSelector);
+              _this.hasHeaders = true;
+            } else {
+              cellContent = _.cloneDeep(col.content);
+            }
+            _this.cfg.items[itemNum].cells[colName] = cellContent;
+            colVal = cellContent;
+          }
+        });
+        _this.cfg.colVals.push(colVal);
+      });
+
+      // Assign an id to each cell, converting cells with just string content to objects:
+      this.cfg.items.forEach(function (item, itemNum) {
+        _.forEach(item.cells, function (cell, colName) {
+          if (!_.isObject(cell)) {
+            _this.cfg.items[itemNum].cells[colName] = {html: _(cell).toString()};
+          }
+          _this.lastCellId = _this._getCellId(item.id, colName);
+          _this.cfg.items[itemNum].cells[colName].id = _this.lastCellId;
+        });
+        _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
+      });
+      this._log('setConfig converted config to', this.cfg);
+      return true;
+    },
+
+    _getItemSelectorCellContent: function (itemSelector) {
+      var itemSelectorCfg = {};
+      itemSelectorCfg[itemSelector.type] = true;
+      return {
+        itemSelector: itemSelectorCfg
+      };
+    },
+
+    _addDynamicContentAfterTemplateCompletion: function () {
+      var _this = this;
+      _this._log('Waiting for last table cell to be created...');
+      this.dynamicContentWaiter = window.setInterval(function () {
+        if (window.document.querySelector('#' + _this.lastCellId) !== null) {
+          _this._log('Last table cell #' + _this.lastCellId + ' created.');
+          _this._addDynamicContent();
+        }
+      }, 20);
+    },
+
+    /**
+     * Returns true if cfg is valid configuration.
+     * @param {object} cfg
+     */
+    isValidConfig: function (cfg) {
+      return _.isObject(cfg) && _.isArray(cfg.items);
+    },
+
+    /**
+     * Returns true if cfg is valid configuration and has one or more items.
+     * @param {object} cfg
+     */
+    hasItems: function (cfg) {
+      return this.isValidConfig(cfg) && cfg.items.length;
+    },
+
+    _addDynamicContent: function () {
+
+      window.clearInterval(this.dynamicContentWaiter);
+
+      if (this.isValidConfig(this.cfg)) {
+
+        this._log('_addDynamicContent proceeding');
+
+        var
+            _this = this,
+            spec,
+            tableCell,
+            cellId,
+            polyment,
+            eventInfo;
+
+        this.cfg.items.forEach(function (item) {
+          _.forEach(item.cells, function (cell, colName) {
+            cellId = _this._getCellId(item.id, colName);
+            if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
+              spec = cell.element;
+              tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
+              polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
+              if (_.isArray(spec.classes)) {
+                spec.classes.forEach(function (cls) {
+                  polyment.classList.add(cls); // Don't overwrite polymer classes.
+                });
+              }
+              if (_.isObject(spec.attributes)) {
+                _.forEach(spec.attributes, function (val, name) {
+                  if (name == 'checked') {
+                    if (val) {
+                      polyment.checked = 'checked';
+                    }
+                  } else {
+                    polyment.setAttribute(name, val);
+                  }
+                });
+              }
+              if (_.isString(spec.innerHTML)) {
+                Polymer.dom(polyment).innerHTML = spec.innerHTML;
+              }
+              if (_.isArray(spec.events)) {
+                spec.events.forEach(function (evtCfg) {
+                  if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
+                    polyment.addEventListener(evtCfg.in, function (evt) {
+                      eventInfo = {
+                        itemId: item.id,
+                        config: _.cloneDeep(evtCfg),
+                        targetAttributes: _this._getEventElementAttributes(evt)
+                      };
+                      _this._handleCellEvent(eventInfo);
+                    });
+                  }
+                });
+              }
+            }
+          });
+        });
+
+        this._log('_addDynamicContent done');
+      }
+
+    },
+
+    _handleCellEvent: function (eventInfo) {
+      var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
+      this._doFire(eventInfo.config.out, data);
+    },
+
+    _getCellId: function (itemId, colName) {
+      return 'itm-' + itemId + '-c-' + colName;
+    },
+
+    /**
+     * Return object with useful information about an event's target
+     *
+     * @param   {object}  evt
+     * @returns {object}
+     */
+    _getEventElementAttributes: function (evt) {
+      evt = evt || window.event;
+      if (!_.isObject(evt)) return {};
+      var elem = evt.target || evt.srcElement;
+      return this._getElementAttributes(elem);
+    },
+
+    _getElementAttributes: function (elem) {
+      var attr = {};
+      if (!_.isObject(elem)) return attr;
+      var attrNodeMap = Array.prototype.slice.call(elem.attributes);
+      attrNodeMap.forEach(function (node) {
+        attr[node.name] = node.value;
+      });
+      attr.checked = elem.checked;
+      return attr;
+    },
+
+    /**
+     * Returns array of item ids.
+     * @param {string} column
+     */
+    _getSelectedItemIds: function () {
+      var ids = [];
+      if (_.isArray(this.selectedItems)) {
+        this.selectedItems.forEach(function (item) {
+          ids.push(item.id);
+        });
+      }
+      return ids;
+    },
+
+    _toggleItemSelection: function (e) {
+      var item = this.$.tableItems.itemForElement(e.target);
+      this.$.itemSelector.select(item);
+      this._updateSelectedItemIds();
+    },
+
+    _toggleItemSelectionAll: function (e) {
+      var _this = this, selectorItem;
+      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
+        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
+        _this.$.itemSelector.deselect(selectorItem);
+        selectorEl.checked = e.target.checked;
+        if (e.target.checked) {
+          _this.$.itemSelector.select(selectorItem);
+        }
+      });
+      this._updateSelectedItemIds();
+    },
+
+    _updateItemSelectorAll: function () {
+      if (this.cfg && _.isArray(this.cfg.items) && _.isArray(this.selectedItems)) {
+        document.getElementById('itemSelectorAll').checked = this.selectedItems.length === this.cfg.items.length;
+      }
+    },
+
+    _updateSelectedItemIds: function () {
+      this._setSelectedItemIds(this._getSelectedItemIds());
+      this._updateItemSelectorAll();
+    },
+
+    _selectedItemIdsChanged: function (newValue, oldValue) {
+      this._doFire(_.kebabCase(this.name) + '-selected-items-changed', newValue);
+    },
+
+    _doFire: function (type, detail, options) {
+      this.fire(type, detail, options);
+      this._log('fired "' + type + '"');
+      if (detail) {
+        this._log('...with detail', detail, false);
+      }
+      if (options) {
+        this._log('...with options', options, false);
+      }
+    },
+
+    _log: function (msg, obj, withName) {
+      if (this.dev) {
+        withName = _.isBoolean(withName) ? withName : true;
+        if (withName) {
+          msg = this.name + ': ' + msg;
+        }
+        console.log(msg, obj || '');
+      }
+    }
+
+  });
 </script>
