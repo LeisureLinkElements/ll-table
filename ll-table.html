@@ -344,11 +344,13 @@ Example:
     },
 
     _updateSelectedItemIds: function () {
-      this._setSelectedItemIds(this._getSelectedItemIds());
+      this.selectedItemIds = this._getSelectedItemIds();
       this._updateItemSelectorAll();
     },
 
-    _selectedItemIdsChanged: function (newValue, oldValue) {
+    // Using observer rather than notify=true in order to use fireLog,
+    // which prepends the unique name of this table instance to the custom event name.
+    _selectedItemIdsChanged: function (newValue) {
       this._fireLogFire('selected-items-changed', newValue);
     }
 
