@@ -42,14 +42,15 @@ Example:
 
   <template>
     <div class="table">
-      <template is="dom-if" if="{{hasHeaders}}">
+      <template is="dom-if" if="{{hasHeaders}}" restamp="true">
         <div class="table-header">
           <div class="table-row">
-            <template is="dom-repeat" items="[[cfg.colVals]]">
+            <template is="dom-repeat" items="[[colVals]]" restamp="true">
               <div class="table-cell">
-                <template is="dom-if" if="{{item.label}}">[[item.label]]</template>
-                <template is="dom-if" if="{{item.itemSelector.checkbox}}"><input type="checkbox" id="itemSelectorAll"
-                                                                                 on-change="_toggleItemSelectionAll">
+                <template is="dom-if" if="{{item.label}}" restamp="true">[[item.label]]</template>
+                <template is="dom-if" if="{{item.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
+                                                                                                id="masterItemSelector"
+                                                                                                on-change="_masterItemSelectorChanged">
                 </template>
               </div>
             </template>
@@ -61,10 +62,11 @@ Example:
           <div class="table-row">
             <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
               <div class="table-cell" id="[[cell.id]]">
-                <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
-                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
-                                                                                 on-change="_toggleItemSelection"
-                                                                                 class="item-selector"></template>
+                <template is="dom-if" if="{{cell.html}}" restamp="true">[[cell.html]]</template>
+                <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
+                                                                                                on-change="_itemSelectorChanged"
+                                                                                                class="item-selector">
+                </template>
               </div>
             </template>
           </div>
@@ -87,10 +89,24 @@ Example:
 
     properties: {
 
+      // The raw config set on element.
       config: {
         type: Object,
         observer: '_setConfig'
       },
+
+      // The configuration generated for internal use.
+      cfg: Object,
+
+      // Array of column values for use in table header repeating column template
+      colVals: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+
+      isAttached: false,
 
       // IDs of selected items.
       selectedItemIds: {
@@ -99,7 +115,11 @@ Example:
         value: function () {
           return [];
         }
-      }
+      },
+
+      hasHeaders: false,
+
+      dynamicContentAdded: false
     },
 
     // Element Lifecycle
@@ -110,7 +130,7 @@ Example:
 
     attached: function () {
       this._fireLog('attached');
-      this._addDynamicContentAfterTemplateCompletion();
+      this.isAttached = true;
     },
 
     // Element Behavior
@@ -127,14 +147,16 @@ Example:
         this._fireLog('Invalid config!');
         return false;
       }
+
       this.cfg = _.cloneDeep(newConfig);
+
+      this.selectedItemIds = [];
 
       var _this = this, cellContent, colVal;
 
       // If content key is set in any column config,
       // copy the content config to each cell config in the column.
-      this.hasHeaders = false;
-      this.cfg.colVals = [];
+      var tempColVals = [];
       _.forEach(this.cfg.cols, function (col, colName) {
         colVal = {label: ''};
         if (_.isString(col.label)) {
@@ -153,8 +175,9 @@ Example:
             colVal = cellContent;
           }
         });
-        _this.cfg.colVals.push(colVal);
+        tempColVals.push(colVal);
       });
+      this.colVals = tempColVals;
 
       // Assign an id to each cell, converting cells with just string content to objects:
       this.cfg.items.forEach(function (item, itemNum) {
@@ -167,7 +190,10 @@ Example:
         });
         _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
       });
-      this._fireLog('setConfig converted config to', this.cfg);
+      this._fireLog('Converted new config to', this.cfg);
+
+      this._addDynamicContentAfterTemplateCompletion();
+
       return true;
     },
 
@@ -183,7 +209,7 @@ Example:
       var _this = this;
       _this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
-        if (window.document.querySelector('#' + _this.lastCellId) !== null) {
+        if (_this.isAttached && window.document.querySelector('#' + _this.lastCellId) !== null) {
           _this._fireLog('Last table cell #' + _this.lastCellId + ' created.');
           _this._addDynamicContent();
         }
@@ -265,7 +291,7 @@ Example:
             }
           });
         });
-
+        this._deselectAll();
         this._fireLog('_addDynamicContent done');
       }
 
@@ -318,40 +344,55 @@ Example:
       return ids;
     },
 
-    _toggleItemSelection: function (e) {
+    _itemSelectorChanged: function (e) {
       var item = this.$.tableItems.itemForElement(e.target);
-      this.$.itemSelector.select(item);
+      this.$.itemSelector.deselect(item);
+      if(e.target.checked) {
+        this.$.itemSelector.select(item);
+      }
+      this._updateMasterItemSelector();
       this._updateSelectedItemIds();
     },
 
-    _toggleItemSelectionAll: function (e) {
+    _masterItemSelectorChanged: function (e) {
       var _this = this, selectorItem;
       Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
         selectorItem = _this.$.tableItems.itemForElement(selectorEl);
         _this.$.itemSelector.deselect(selectorItem);
-        selectorEl.checked = e.target.checked;
+        selectorEl.checked = false;
         if (e.target.checked) {
           _this.$.itemSelector.select(selectorItem);
+          selectorEl.checked = true;
         }
       });
       this._updateSelectedItemIds();
     },
 
-    _updateItemSelectorAll: function () {
+    _updateMasterItemSelector: function () {
       if (this.cfg && _.isArray(this.cfg.items) && _.isArray(this.selectedItems)) {
-        document.getElementById('itemSelectorAll').checked = this.selectedItems.length === this.cfg.items.length;
+        this.$$('#masterItemSelector').checked = this.selectedItems.length === this.cfg.items.length;
       }
     },
 
     _updateSelectedItemIds: function () {
       this.selectedItemIds = this._getSelectedItemIds();
-      this._updateItemSelectorAll();
     },
 
     // Using observer rather than notify=true in order to use fireLog,
     // which prepends the unique name of this table instance to the custom event name.
     _selectedItemIdsChanged: function (newValue) {
       this._fireLogFire('selected-items-changed', newValue);
+    },
+
+    _deselectAll: function() {
+      var _this = this, selectorItem;
+      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
+        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
+        selectorEl.checked = false;
+        _this.$.itemSelector.deselect(selectorItem);
+      });
+      this._updateMasterItemSelector();
+      this._updateSelectedItemIds();
     }
 
   });
