@@ -10,14 +10,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
 
-    <!-- Step 1: import the element to test -->
-    <link rel="import" href="../ll-table.html">
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../ll-table.html">
 </head>
 <body>
 
@@ -25,31 +25,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <ll-table></ll-table>
 
 <script>
-    var myEl = document.querySelector('ll-table');
+  var myEl = document.querySelector('ll-table');
 
-    suite('<ll-table>', function() {
+  suite('<ll-table>', function () {
 
-        test('validates minimal configuration', function() {
-            assert.equal(myEl.isValidConfig({items:[]}), true);
-        });
-
-        test('generates custom list of element attributes', function() {
-            var testEl = document.createElement('input');
-            testEl.setAttribute('type','checkbox');
-            testEl.setAttribute('name','tesla');
-            testEl.setAttribute('checked',true);
-            var attribs = myEl._getElementAttributes(testEl);
-            assert.equal(attribs.type, 'checkbox');
-            assert.equal(attribs.name, 'tesla');
-            assert.equal(attribs.checked, true);
-        });
-
-        test('generates valid cell ids', function(done) {
-            assert.equal(myEl._getCellId('uwjh83u','name'), 'itm-uwjh83u-c-name');
-            done();
-        });
-
+    test('validates minimal configuration', function () {
+      var basicConfig = {
+        items: [],
+        cols: {}
+      };
+      assert.equal(myEl.isValidConfig(basicConfig), true);
     });
+
+    test('generates custom list of element attributes', function () {
+      var testEl = document.createElement('input');
+      testEl.setAttribute('type', 'checkbox');
+      testEl.setAttribute('name', 'tesla');
+      testEl.setAttribute('checked', true);
+      var attribs = myEl._getElementAttributes(testEl);
+      assert.equal(attribs.type, 'checkbox');
+      assert.equal(attribs.name, 'tesla');
+      assert.equal(attribs.checked, true);
+    });
+
+    test('generates valid cell ids', function (done) {
+      assert.equal(myEl._getCellId('uwjh83u', 'name'), 'itm-uwjh83u-c-name');
+      done();
+    });
+
+  });
 </script>
 
 </body>

@@ -1,42 +1,44 @@
 <!doctype html>
 
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>ll-table Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="sample-data.js"></script>
-    <link rel="import" href="../ll-table.html">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ll-table Demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="sample-data.js"></script>
+  <link rel="import" href="../ll-table.html">
 
-    <style>
-        button {
-            display:block;
-            margin:20px auto;
-            border-radius:5px;
-        }
-        h2,h4 {
-            text-align:center;
-            margin:20px auto;
-            border:none;
-        }
-    </style>
+  <style>
+    button {
+      display: block;
+      margin: 20px auto;
+      border-radius: 5px;
+    }
 
-      <script>
-          window.addEventListener('ll-table-demo-ready',function(evt){
-              if(evt.target && _.isObject(window.sampleData)) {
-                  evt.target.config = window.sampleData;
-              }
-          });
-      </script>
-  </head>
-  <body>
+    h2, h4 {
+      text-align: center;
+      margin: 20px auto;
+      border: none;
+    }
+  </style>
 
-    <ll-table id="table" fire-log-name="ll-table-demo" fire-log-event-prefix="ll-table-demo-" fire-logging-enabled></ll-table>
+  <script>
+    window.addEventListener('ll-table-demo-ready', function (evt) {
+      if (evt.target && _.isObject(window.sampleData)) {
+        evt.target.config = window.sampleData;
+      }
+    });
+  </script>
+</head>
+<body>
 
-  <h2>Watch console for event firings!</h2>
+<ll-table id="table" fire-log-name="ll-table-demo" fire-log-event-prefix="ll-table-demo-"
+          fire-logging-enabled></ll-table>
 
-  <h4>Play with the data in sample-data.js</h4>
+<h2>Watch console for events.</h2>
 
-  </body>
+<h4>Play with the data in sample-data.js</h4>
+
+</body>
 </html>

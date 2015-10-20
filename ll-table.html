@@ -100,23 +100,38 @@ Example:
       // Array of column values for use in table header repeating column template
       colVals: {
         type: Array,
-        value: function() {
+        value: function () {
           return [];
         }
       },
 
-      isAttached: false,
+      isAttached: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
+
+      hasItemSelectors: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
 
       // IDs of selected items.
       selectedItemIds: {
         type: Array,
+        readOnly: true,
         observer: '_selectedItemIdsChanged',
         value: function () {
           return [];
         }
       },
 
-      hasHeaders: false,
+      hasHeaders: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
 
       dynamicContentAdded: false
     },
@@ -129,7 +144,7 @@ Example:
 
     attached: function () {
       this._fireLogFire('attached');
-      this.isAttached = true;
+      this._setIsAttached(true);
     },
 
     // Element Behavior
@@ -149,24 +164,28 @@ Example:
 
       this.cfg = _.cloneDeep(newConfig);
 
-      this.selectedItemIds = [];
+      this._setSelectedItemIds([]);
 
       var _this = this, cellContent, colVal;
 
-      // If content key is set in any column config,
+      // If the 'content' key is set in any column config,
       // copy the content config to each cell config in the column.
       var tempColVals = [];
       _.forEach(this.cfg.cols, function (col, colName) {
         colVal = {label: ''};
         if (_.isString(col.label)) {
-          _this.hasHeaders = true;
+          _this._setHasHeaders(true);
           colVal = _.cloneDeep(col);
         }
-        _this.cfg.items.forEach(function (item, itemNum) {
+        _.forEach(_this.cfg.items, function (item, itemNum) {
           if (_.isObject(col.content)) {
             if (col.content.itemSelector) {
-              cellContent = _this._getItemSelectorCellContent(col.content.itemSelector);
-              _this.hasHeaders = true;
+              if(!_this.hasItemSelectors) {
+                _this._setHasHeaders(true);
+                _this._setHasItemSelectors(true);
+                _this.itemSelectorColumnName = colName;
+              }
+              cellContent = _this._getItemSelectorCellConfig(col.content.itemSelector, item.cells[colName]);
             } else {
               cellContent = _.cloneDeep(col.content);
             }
@@ -179,7 +198,7 @@ Example:
       this.colVals = tempColVals;
 
       // Assign an id to each cell, converting cells with just string content to objects:
-      this.cfg.items.forEach(function (item, itemNum) {
+      _.forEach(this.cfg.items, function (item, itemNum) {
         _.forEach(item.cells, function (cell, colName) {
           if (!_.isObject(cell)) {
             _this.cfg.items[itemNum].cells[colName] = {html: _(cell).toString()};
@@ -191,20 +210,22 @@ Example:
       });
       this._fireLog('Converted new config to', this.cfg);
 
-      this._addDynamicContentAfterTemplateCompletion();
+      this._waitToAddDynamicContent();
 
       return true;
     },
 
-    _getItemSelectorCellContent: function (itemSelector) {
-      var itemSelectorCfg = {};
+    _getItemSelectorCellConfig: function (itemSelector, isSelected) {
+      var itemSelectorCfg = {
+        selected: isSelected
+      };
       itemSelectorCfg[itemSelector.type] = true;
       return {
         itemSelector: itemSelectorCfg
       };
     },
 
-    _addDynamicContentAfterTemplateCompletion: function () {
+    _waitToAddDynamicContent: function () {
       var _this = this;
       _this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
@@ -220,7 +241,7 @@ Example:
      * @param {object} cfg
      */
     isValidConfig: function (cfg) {
-      return _.isObject(cfg) &&_.isObject(cfg.cols) && _.isArray(cfg.items);
+      return _.isObject(cfg) && _.isObject(cfg.cols) && _.isArray(cfg.items);
     },
 
     /**
@@ -236,64 +257,77 @@ Example:
       window.clearInterval(this.dynamicContentWaiter);
 
       if (this.isValidConfig(this.cfg)) {
-
-        this._fireLog('_addDynamicContent proceeding');
-
-        var
-            _this = this,
-            spec,
-            tableCell,
-            cellId,
-            polyment,
-            eventInfo;
-
-        this.cfg.items.forEach(function (item) {
-          _.forEach(item.cells, function (cell, colName) {
-            cellId = _this._getCellId(item.id, colName);
-            if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
-              spec = cell.element;
-              tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
-              polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
-              if (_.isArray(spec.classes)) {
-                spec.classes.forEach(function (cls) {
-                  polyment.classList.add(cls); // Don't overwrite polymer classes.
-                });
-              }
-              if (_.isObject(spec.attributes)) {
-                _.forEach(spec.attributes, function (val, name) {
-                  if (name == 'checked') {
-                    if (val) {
-                      polyment.checked = 'checked';
-                    }
-                  } else {
-                    polyment.setAttribute(name, val);
-                  }
-                });
-              }
-              if (_.isString(spec.innerHTML)) {
-                Polymer.dom(polyment).innerHTML = spec.innerHTML;
-              }
-              if (_.isArray(spec.events)) {
-                spec.events.forEach(function (evtCfg) {
-                  if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
-                    polyment.addEventListener(evtCfg.in, function (evt) {
-                      eventInfo = {
-                        itemId: item.id,
-                        config: _.cloneDeep(evtCfg),
-                        targetAttributes: _this._getEventElementAttributes(evt)
-                      };
-                      _this._handleCellEvent(eventInfo);
-                    });
-                  }
-                });
-              }
-            }
-          });
+        this._fireLog('_addDynamicContent begin');
+        var _this = this;
+        _.forEach(this.cfg.items, function (item) {
+          _this._addDynamicContentRow(item);
         });
-        this._deselectAll();
-        this._fireLog('_addDynamicContent done');
+        if(this.hasItemSelectors) {
+          this._initItemSelections();
+        }
+        this._fireLog('_addDynamicContent end');
       }
 
+    },
+
+    _addDynamicContentRow: function (item) {
+      var _this = this, cellId;
+      if (_.isObject(item.cells)) {
+        _.forEach(item.cells, function (cell, colName) {
+          if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
+            cellId = _this._getCellId(item.id, colName);
+            _this._addDynamicContentCell(cell, cellId, item.id);
+          }
+        });
+      }
+    },
+
+    _addDynamicContentCell: function (cell, cellId, itemId) {
+      var tableCell = Polymer.dom(this.root).querySelector('#' + cellId);
+      if (tableCell) {
+        var _this = this;
+        var spec = cell.element;
+        var polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
+        if (polyment) {
+          // Add classes to element without overwriting polymer classes:
+          if (_.isArray(spec.classes)) {
+            _.forEach(spec.classes, function (cls) {
+              polyment.classList.add(cls);
+            });
+          }
+          // Add attributes to element if any specified:
+          if (_.isObject(spec.attributes)) {
+            _.forEach(spec.attributes, function (val, name) {
+              if (name == 'checked') {
+                if (val) {
+                  polyment.checked = 'checked';
+                }
+              } else {
+                polyment.setAttribute(name, val);
+              }
+            });
+          }
+          // Add any inner-html to element if specified:
+          if (_.isString(spec.innerHTML)) {
+            Polymer.dom(polyment).innerHTML = spec.innerHTML;
+          }
+          // Add any event handlers to element if specified:
+          if (_.isArray(spec.events)) {
+            _.forEach(spec.events, function (evtCfg) {
+              if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
+                polyment.addEventListener(evtCfg.in, function (evt) {
+                  var eventInfo = {
+                    itemId: itemId,
+                    config: _.cloneDeep(evtCfg),
+                    targetAttributes: _this._getEventElementAttributes(evt)
+                  };
+                  _this._handleCellEvent(eventInfo);
+                });
+              }
+            });
+          }
+        }
+      }
     },
 
     _handleCellEvent: function (eventInfo) {
@@ -322,9 +356,11 @@ Example:
       var attr = {};
       if (!_.isObject(elem)) return attr;
       var attrNodeMap = Array.prototype.slice.call(elem.attributes);
-      attrNodeMap.forEach(function (node) {
-        attr[node.name] = node.value;
-      });
+      if (_.isArray(attrNodeMap)) {
+        _.forEach(attrNodeMap, function (node) {
+          attr[node.name] = node.value;
+        });
+      }
       attr.checked = elem.checked;
       return attr;
     },
@@ -336,7 +372,7 @@ Example:
     _getSelectedItemIds: function () {
       var ids = [];
       if (_.isArray(this.selectedItems)) {
-        this.selectedItems.forEach(function (item) {
+        _.forEach(this.selectedItems, function (item) {
           ids.push(item.id);
         });
       }
@@ -345,25 +381,13 @@ Example:
 
     _itemSelectorChanged: function (e) {
       var item = this.$.tableItems.itemForElement(e.target);
-      this.$.itemSelector.deselect(item);
-      if(e.target.checked) {
-        this.$.itemSelector.select(item);
-      }
+      this._toggleItemSelector(item, e.target.checked);
       this._updateMasterItemSelector();
       this._updateSelectedItemIds();
     },
 
     _masterItemSelectorChanged: function (e) {
-      var _this = this, selectorItem;
-      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
-        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
-        _this.$.itemSelector.deselect(selectorItem);
-        selectorEl.checked = false;
-        if (e.target.checked) {
-          _this.$.itemSelector.select(selectorItem);
-          selectorEl.checked = true;
-        }
-      });
+      this._toggleAllItemSelectorInputs(e.target.checked);
       this._updateSelectedItemIds();
     },
 
@@ -374,7 +398,7 @@ Example:
     },
 
     _updateSelectedItemIds: function () {
-      this.selectedItemIds = this._getSelectedItemIds();
+      this._setSelectedItemIds(this._getSelectedItemIds());
     },
 
     // Using observer rather than notify=true in order to use fireLog,
@@ -383,15 +407,58 @@ Example:
       this._fireLogFire('selected-items-changed', newValue);
     },
 
-    _deselectAll: function() {
-      var _this = this, selectorItem;
-      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
-        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
-        selectorEl.checked = false;
-        _this.$.itemSelector.deselect(selectorItem);
+    _initItemSelections: function() {
+      var selections = [], cell, _this = this;
+      _.forEach(this.cfg.items, function(item) {
+        if(_.isObject(item.cells[_this.itemSelectorColumnName])) {
+          cell = item.cells[_this.itemSelectorColumnName];
+          if(_.isBoolean(cell.itemSelector.selected)) {
+            selections.push(cell.itemSelector.selected);
+          }
+        }
       });
-      this._updateMasterItemSelector();
-      this._updateSelectedItemIds();
+      if(selections.length) {
+        this._toggleAllItemSelectorInputs(selections);
+      } else {
+        this._toggleAllItemSelectorInputs(false);
+      }
+    },
+
+    // Toggle all item selector inputs true, false, or by array of booleans:
+    _toggleAllItemSelectorInputs: function (selected) {
+      var blanket;
+      if(_.isBoolean(selected)) {
+        blanket = true;
+      } else if(_.isArray(selected)) {
+        blanket = false
+      } else {
+        return false;
+      }
+      var inputs = Polymer.dom(this.root).querySelectorAll('.item-selector');
+      if (_.isArray(inputs)) {
+        var _this = this, sel;
+        _.forEach(inputs, function (selectorEl, elIdx) {
+          sel = blanket ? selected : selected[elIdx];
+          _this._toggleItemSelectionInput(selectorEl, sel);
+        });
+        this._updateMasterItemSelector();
+        this._updateSelectedItemIds();
+      }
+    },
+
+    // Check or un-check checkbox or radio button and its associated itemSelector item:
+    _toggleItemSelectionInput: function (inputEl, selected) {
+      var selectorItem = this.$.tableItems.itemForElement(inputEl);
+      this._toggleItemSelector(selectorItem, selected);
+      inputEl.checked = selected;
+    },
+
+    // Select or deselect the item in the array-selector (not the checkbox element)
+    _toggleItemSelector: function (item, selected) {
+      this.$.itemSelector.deselect(item);
+      if (selected) {
+        this.$.itemSelector.select(item);
+      }
     }
 
   });
