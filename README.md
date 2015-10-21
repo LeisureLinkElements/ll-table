@@ -4,7 +4,8 @@ Data-driven table generator.
 
 Features:
 
-- **Configuration-driven:** Generates and updates entire table from a single json object. Dynamic insertion and deletion of individual rows is not supported.
+
+- **Configuration-driven:** Generates and updates entire table from one required and one optional json object, plus optional element attributes. (See demo and /demo/sample-data.js for examples.) Dynamic insertion and deletion of individual rows is not supported.
 - **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements:
     * Example - Static cell content: Any string or numeric data. (No HTML tags).
     * Example - Configuration-generated cell content with event-handling. If you need a more complete HTML element displayed within a cell, use an 'element' object in place of a string or number:
@@ -21,13 +22,12 @@ Features:
             {
               in: 'click', // Event to listen for.
               out: 'remove-unit', // Event to fire.
-              itemIdOnly: true // If true, the event is fired with the item ID as the only data. If false, the data is an object containing the event's configuration, and all of the elements attributes (including a pseudo 'checked' attribute for checkboxes)
             }
           ]
         }
       
 - **Column-wide repeating content:** Populate an entire column of cells with the same static content or generated element by defining it in the column's configuration.
-- **Column-wide item selection UI:** When a column definition contains an itemSelector node, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'assoc' key to true in the cfg.items[..].cells objects. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
+- **Column-wide item selection UI:** Any column may be designated as an item selection UI column. In this case, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'selected' key to true in the cfg.items[..].cells objects. ('selected' is never displayed as a column value itself). Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
 - **Optional column headers:** To show column header row, include a 'label' node in at least one column definition.
 
