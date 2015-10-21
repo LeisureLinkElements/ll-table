@@ -242,7 +242,40 @@ Example:
       return itemSelectorType !== 'none';
     },
 
+    // Return true if columns keys iterate as strings and values are objects.
+    isValidColumnsConfig: function(columns) {
+      if(!_.isObject(columns)) {
+        return false;
+      }
+      _.forEach(columns, function(col, key){
+        if(!_.isString(key) || !_.isObject(col)) {
+          return false;
+        }
+      });
+      return true;
+    },
+
+    // Return true if items is an array of objects, and each object's keys iterate as strings:
+    isValidItemsArray: function(items) {
+      if(!_.isArray(items)) {
+        return false;
+      }
+      _.forEach(items, function(item, idx){
+        if(!_.isObject(item)) {
+          return false;
+        }
+        _.forEach(item, function(col, key){
+          if(!_.isString(col)) {
+            return false;
+          }
+        });
+      });
+      return true;
+    },
+
     _buildHeaders: function () {
+
+      this._startBuildTimer();
 
       // If there's an item selector, show the header row in order to display select all/none selector:
       if (this.itemSelectorType != 'none') {
@@ -251,27 +284,29 @@ Example:
 
       if (this.showHeader) {
 
+        // Build a list of column names based on keys in first item and keys of optional columns property:
+        this._columnsDefSource = !_.isEmpty(this.columns) ? this.columns : this.items[0];
+
+        if (!this.isValidColumnsConfig(this._columnsDefSource)) {
+          this._fireLog('invalid column definitions');
+          return false;
+        }
+
         var _this = this,
             headers = [];
 
         if (this.itemSelectorType != 'none' && this.itemSelectorPos === 'left') {
           headers.push(this._itemSelectorCellConfig);
         }
-
-        // Build a list of column names based on keys in first item and keys of optional columns property:
-        this._columnsDefSource = !_.isEmpty(this.columns) ? this.columns : this.items[0];
-
-        if (_.isObject(this._columnsDefSource)) {
-          _.forEach(this._columnsDefSource, function (colDef, colKey) {
-            if (colKey === 'id') {
-              if (_this.showItemIds) {
-                headers.push({label: _this.itemIdColumnLabel});
-              }
-            } else if (colKey != 'selected') {
-              headers.push({label: _this._getColumnLabelFromColumnKey(colKey)});
+        _.forEach(this._columnsDefSource, function (colDef, colKey) {
+          if (colKey === 'id') {
+            if (_this.showItemIds) {
+              headers.push({label: _this.itemIdColumnLabel});
             }
-          });
-        }
+          } else if (colKey != 'selected') {
+            headers.push({label: _this._getColumnLabelFromColumnKey(colKey)});
+          }
+        });
 
         if (this.itemSelectorType != 'none' && this.itemSelectorPos === 'right') {
           headers.push(this._itemSelectorCellConfig);
@@ -292,8 +327,8 @@ Example:
 
       this._rowBuildStartTime = new Date().getTime();
 
-      if (!_.isArray(this.items)) {
-        _this.fireLog('items set to non-array');
+      if (!this.isValidItemsArray(this.items)) {
+        this._fireLog('invalid item data');
         return false;
       }
 
