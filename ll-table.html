@@ -206,6 +206,10 @@ Example:
         }
       },
 
+      renderTime: {
+        type: Number,
+        value: 0,
+        readOnly: true
       }
     },
 
@@ -287,6 +291,7 @@ Example:
     _buildRows: function () {
 
       this._fireLog('_buildRows');
+      this._rowBuildStartTime = new Date().getTime();
 
       if (!_.isArray(this.items)) {
         _this.fireLog('items set to non-array');
@@ -439,6 +444,7 @@ Example:
         this._initItemSelections();
       }
 
+      this._setRenderTime((new Date().getTime() - this._rowBuildStartTime) / 1000);
     },
 
     _handleCellEvent: function (eventOut, itemId) {
