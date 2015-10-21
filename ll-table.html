@@ -327,7 +327,7 @@ Example:
 
     _buildRows: function () {
 
-      this._rowBuildStartTime = new Date().getTime();
+      this._startBuildTimer();
 
       if (!this.isValidItemsArray(this.items)) {
         this._fireLog('invalid item data');
@@ -411,6 +411,16 @@ Example:
       this._setRows(rows);
     },
 
+    _startBuildTimer: function() {
+      if(!this._buildStartTime) {
+        this._buildStartTime = new Date().getTime();
+      }
+    },
+
+    _stopBuildTimer: function() {
+      this._setRenderTime((new Date().getTime() - this._buildStartTime) / 1000);
+    },
+
     _waitToAddDynamicContent: function () {
       var _this = this;
       this._fireLog('Waiting for last table cell to be created...');
@@ -480,7 +490,8 @@ Example:
         this._initItemSelections();
       }
 
-      this._setRenderTime((new Date().getTime() - this._rowBuildStartTime) / 1000);
+      this._stopBuildTimer();
+
       this._fireLogFire('rendered');
 
     },
