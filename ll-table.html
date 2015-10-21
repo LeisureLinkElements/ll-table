@@ -457,32 +457,6 @@ Example:
     },
 
     /**
-     * Return object with useful information about an event's target
-     *
-     * @param   {object}  evt
-     * @returns {object}
-     */
-    _getEventElementAttributes: function (evt) {
-      evt = evt || window.event;
-      if (!_.isObject(evt)) return {};
-      var elem = evt.target || evt.srcElement;
-      return this._getElementAttributes(elem);
-    },
-
-    _getElementAttributes: function (elem) {
-      var attr = {};
-      if (!_.isObject(elem)) return attr;
-      var attrNodeMap = Array.prototype.slice.call(elem.attributes);
-      if (_.isArray(attrNodeMap)) {
-        _.forEach(attrNodeMap, function (node) {
-          attr[node.name] = node.value;
-        });
-      }
-      attr.checked = elem.checked;
-      return attr;
-    },
-
-    /**
      * Returns array of item ids.
      * @param {string} column
      */
