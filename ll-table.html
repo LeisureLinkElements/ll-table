@@ -376,19 +376,20 @@ Example:
 
     _waitToAddDynamicContent: function () {
       var _this = this;
-      _this._fireLog('Waiting for last table cell to be created...');
+      this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
         if (_this.$$('#' + _this._lastCellId) !== null) {
           _this._fireLog('Last table cell #' + _this._lastCellId + ' created.');
           _this._addDynamicContent();
         }
-      }, 20);
+      }, 10);
     },
 
     _addDynamicContent: function () {
 
       window.clearInterval(this.dynamicContentWaiter);
 
+      if (!_.isEmpty(this._dynamicContent)) {
         var _this = this;
         _.forEach(this._dynamicContent, function (cell, cellId) {
           var tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
@@ -443,6 +444,8 @@ Example:
       }
 
       this._setRenderTime((new Date().getTime() - this._rowBuildStartTime) / 1000);
+      this._fireLogFire('rendered');
+
     },
 
     _handleCellEvent: function (eventOut, itemId) {
