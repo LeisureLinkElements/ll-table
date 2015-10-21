@@ -354,8 +354,10 @@ Example:
                 cell.html = item[colKey];
               }
             }
-            row.cells.push(cell);
-            _this._lastCellId = cellId;
+            if (typeof cell.html === 'string') {
+              row.cells.push(cell);
+              _this._lastCellId = cellId;
+            }
           });
         }
 
