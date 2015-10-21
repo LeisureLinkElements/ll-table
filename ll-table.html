@@ -244,8 +244,6 @@ Example:
 
     _buildHeaders: function () {
 
-      this._fireLog('_buildHeaders');
-
       // If there's an item selector, show the header row in order to display select all/none selector:
       if (this.itemSelectorType != 'none') {
         this.showHeader = true;
@@ -290,7 +288,6 @@ Example:
 
     _buildRows: function () {
 
-      this._fireLog('_buildRows');
       this._rowBuildStartTime = new Date().getTime();
 
       if (!_.isArray(this.items)) {
@@ -386,11 +383,7 @@ Example:
 
       window.clearInterval(this.dynamicContentWaiter);
 
-      if (_.isEmpty(this._dynamicContent)) {
-        this._fireLog('no dynamic content');
-      } else {
         var _this = this;
-        this._fireLog('begin adding dynamic content');
         _.forEach(this._dynamicContent, function (cell, cellId) {
           var tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
           if (tableCell && cell.content) {
@@ -437,7 +430,6 @@ Example:
             }
           }
         });
-        this._fireLog('finished adding dynamic content');
       }
 
       if (this._hasItemSelectors) {
