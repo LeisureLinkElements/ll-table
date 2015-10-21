@@ -1,42 +1,249 @@
 <!doctype html>
 
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>ll-table Demo</title>
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="sample-data.js"></script>
-    <link rel="import" href="../ll-table.html">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>ll-table Demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../lodash/lodash.min.js"></script>
+  <script src="sample-data.js"></script>
+  <link rel="import" href="../ll-table.html">
 
-    <style>
-        button {
-            display:block;
-            margin:20px auto;
-            border-radius:5px;
-        }
-        h2,h4 {
-            text-align:center;
-            margin:20px auto;
-            border:none;
-        }
-    </style>
+  <style>
+    button {
+      display: block;
+      margin: 20px auto;
+      border-radius: 5px;
+    }
 
-      <script>
-          window.addEventListener('ll-table-demo-ready',function(evt){
-              if(evt.target && _.isObject(window.sampleData)) {
-                  evt.target.config = window.sampleData;
-              }
-          });
-      </script>
-  </head>
-  <body>
+    .ll-table-demo {
+      margin: 20px;
+      padding: 20px;
+      border: 5px solid dimgray;
+      background-color:white;
+      display: none;
+    }
+    .shown {
+      display: block;
+    }
 
-    <ll-table id="table" fire-log-name="ll-table-demo" fire-log-event-prefix="ll-table-demo-" fire-logging-enabled></ll-table>
+    .status {
+      font-weight: normal;
+      font-size: 16px;
+      font-style: italic;
+      padding: 0 0 0 20px;
+    }
 
-  <h2>Watch console for event firings!</h2>
+    h2, h4 {
+      padding: 5px 0;
+    }
 
+    h2 {
+      font-weight: bold;
+      border: none;
+    }
+
+    h4 {
+      margin: 0 0 10px;
+    }
+
+    li {
+      line-height: 24px;
+    }
+    body {
+      background-color:lightgray;
+    }
+  </style>
+
+  <script>
+
+    var demoConfigs = [
+      {
+        items: demoItems1
+      },
+      {
+        items: demoItems1
+      },
+      {
+        items: demoItems1
+      },
+      {
+        items: demoItems6
+      },
+      {
+        cols: demoColumns1,
+        items: demoItems2
+      },
+      {
+        cols: demoColumns1,
+        items: demoItems1
+      },
+      {
+        cols: demoColumns1,
+        items: demoItems1
+      },
+      {
+        cols: demoColumns2,
+        items: demoItems1
+      },
+      {
+        items: demoItems5
+      }
+    ];
+    var totalDemos = _.size(demoConfigs);
+
+    // Generate one table at a time so rendering timings are accurate:
+
+    function prepDemos() {
+
+      var
+          demoNum,
+          demosReady = 0;
+
+      _.forEach(demoConfigs, function (cfg, idx) {
+        window.addEventListener('demo-' + (idx + 1) + '-ready', function (evt) {
+          demoNum = eventToDemoNum(evt);
+          setDemoStatus(demoNum, 'Ready.');
+          demoConfigs[demoNum-1].demo = evt.target;
+          demosReady++;
+          if (demosReady == totalDemos) {
+            startDemos();
+          }
+        });
+      });
+    }
+
+    function startDemos() {
+      _.forEach(demoConfigs, function (cfg, idx) {
+        window.addEventListener('demo-' + (idx + 1) + '-rendered', function (evt) {
+          demoNum = eventToDemoNum(evt);
+          setDemoStatus(demoNum, 'Rendered in ' + evt.target.renderTime + ' seconds.');
+          if (idx < totalDemos - 1) {
+            startDemo(idx + 1);
+          }
+        });
+      });
+      startDemo(0);
+    }
+
+    function startDemo(idx) {
+      setDemoStatus(idx+1, 'Setting data.');
+      var cfg = demoConfigs[idx];
+      if (cfg.cols) {
+        cfg.demo.columns = cfg.cols;
+      }
+      if (cfg.items) {
+        cfg.demo.items = cfg.items;
+      }
+    }
+
+    function setDemoStatus(demoNum, str) {
+      document.getElementById('demo' + demoNum).querySelector(".status").innerHTML = str;
+    }
+
+    function eventToDemoNum(evt) {
+      return evt.type.replace(/[^0-9]/g, '');
+    }
+
+    prepDemos();
+
+  </script>
+</head>
+<body>
+
+<div class="ll-table-demo">
+  <h2>Watch the console for events while interacting with tables.</h2>
+  <ul>
+    <li>Rendering times are measured from the setting of the 'items' array property to the appearance of all cells in the table including any dynamically-generated HTML cell content like buttons.</li>
+    <li>Demos output events and other info to console because they have the 'fire-logging-enabled' attribute set.</li>
+  </ul>
   <h4>Play with the data in sample-data.js</h4>
+</div>
 
-  </body>
+<div class="ll-table-demo" id="demo1">
+  <h2>Demo 1<span class="status"></span></h2>
+  <h4>Just data. No headers.</h4>
+  <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo2">
+  <h2>Demo 2<span class="status"></span></h2>
+  <h4>Like Demo 1, same data, with header. Column labels are auto-set from item data.</h4>
+  <ll-table show-header fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo3">
+  <h2>Demo 3<span class="status"></span></h2>
+  <h4>Like Demo 2, same data, with item selection checkboxes</h4>
+  <ul>
+    <li>Watch console as you select/deselect items.</li>
+    <li>No item IDs in data, so item IDs are auto-set to item indices.</li>
+    <li>If you check all item checkboxes, the select all/none checkbox in the header reflects that.</li>
+  </ul>
+  <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-3" fire-log-event-prefix="demo-3-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo4">
+  <h2>Demo 4<span class="status"></span></h2>
+  <h4>Like Demo 3, except:</h4>
+  <ul>
+    <li>Data has ID strings added</li>
+    <li>IDs are <b>optionally</b> shown in their own column ('show-item-ids' attribute)</li>
+    <li>Column labels contain spaces because the item data keys have underscores.</li>
+  </ul>
+  <ll-table show-header show-item-ids item-selector-type="checkbox" fire-log-name="demo-4"
+            fire-log-event-prefix="demo-4-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo5">
+  <h2>Demo 5<span class="status"></span></h2>
+  <h4>Like Demo 4, but column labels are set from separate columns config object.</h4>
+  <ul>
+    <li><b>Hey, where did the checkboxes go?</b> Oh there they are. ('item-selector-pos' attribute)</li>
+    <li>Item ID column is hidden again because no 'show-item-ids' attribute.</li>
+  </ul>
+  <ll-table show-header item-selector-type="checkbox" item-selector-pos="right" fire-log-name="demo-5"
+            fire-log-event-prefix="demo-5-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo6">
+  <h2>Demo 6<span class="status"></span></h2>
+  <h4>Like Demo 5, with some items pre-selected in data.</h4>
+  <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-6" fire-log-event-prefix="demo-6-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo7">
+  <h2>Demo 7<span class="status"></span></h2>
+  <h4>Like Demo <b>5 also</b>, but with one of the cells configured as an event-firing button in the data.</h4>
+  <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-7" fire-log-event-prefix="demo-7-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo8">
+  <h2>Demo 8<span class="status"></span></h2>
+  <h4>Like Demo <b>5 also</b>, but with one of the <b>columns</b> configured to <b>populate all rows</b> with an
+    event-firing button.</h4>
+  <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-8" fire-log-event-prefix="demo-8-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<div class="ll-table-demo" id="demo9">
+  <h2>Demo 9<span class="status"></span></h2>
+  <h4>100 rows of random data with IDs and checkboxes displayed, for speed testing.</h4>
+  <ll-table show-header item-selector-type="checkbox" show-item-ids fire-log-name="demo-9"
+            fire-log-event-prefix="demo-9-"
+            fire-logging-enabled></ll-table>
+</div>
+
+<script>
+  _.forEach(document.querySelectorAll('.ll-table-demo'),function(demo){
+    demo.classList.add('shown');
+  });
+</script>
+</body>
 </html>
