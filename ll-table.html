@@ -263,8 +263,10 @@ Example:
 
         if (_.isObject(this._columnsDefSource)) {
           _.forEach(this._columnsDefSource, function (colDef, colKey) {
-            if (colKey === 'id' && _this.showItemIds) {
-              headers.push({label: _this.itemIdColumnLabel});
+            if (colKey === 'id') {
+              if (_this.showItemIds) {
+                headers.push({label: _this.itemIdColumnLabel});
+              }
             } else if (colKey != 'selected') {
               headers.push({label: _this._getColumnLabelFromColumnKey(colKey)});
             }
@@ -321,9 +323,11 @@ Example:
           _.forEach(_this._columnsDefSource, function (colDef, colKey) {
             cellId = _this._getCellId(itemId, colKey);
             cell = {id: cellId};
-            if (colKey === 'id' && _this.showItemIds) {
-              // Display item ID in its own column:
-              cell.html = itemId;
+            if (colKey === 'id') {
+              if (_this.showItemIds) {
+                // Display item ID in its own column:
+                cell.html = itemId;
+              }
             } else if (_.has(_this, 'columns.' + colKey + '.content')) {
               // Column-wide content is defined for this column.
               colWideContent = _this.columns[colKey].content;
