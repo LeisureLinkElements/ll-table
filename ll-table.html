@@ -206,11 +206,6 @@ Example:
         }
       },
 
-      // Set to true when element attached to dom.
-      isAttached: {
-        type: Boolean,
-        readOnly: true,
-        value: false
       }
     },
 
@@ -227,7 +222,6 @@ Example:
 
     attached: function () {
       this._fireLogFire('attached');
-      this._setIsAttached(true);
     },
 
     // Element Behavior
@@ -376,7 +370,7 @@ Example:
       var _this = this;
       _this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
-        if (_this.isAttached && _this.$$('#' + _this._lastCellId) !== null) {
+        if (_this.$$('#' + _this._lastCellId) !== null) {
           _this._fireLog('Last table cell #' + _this._lastCellId + ' created.');
           _this._addDynamicContent();
         }
