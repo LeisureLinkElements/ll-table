@@ -395,7 +395,10 @@ Example:
         _.forEach(this._dynamicContent, function (cell, cellId) {
           var tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
           if (tableCell && cell.content) {
+            // Presence of cell.content confirms there is dynamic content to generate.
             if (cell.content.element) {
+              // This particular dynamic content is a dynamically-generated element.
+              // There may be more types of dynamic content added later, hence this extra conditional block.
               var spec = cell.content.element;
               var polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
               if (polyment) {
