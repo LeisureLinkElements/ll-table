@@ -289,7 +289,7 @@ Example:
         this._columnsDefSource = !_.isEmpty(this.columns) ? this.columns : this.items[0];
 
         if (!this.isValidColumnsConfig(this._columnsDefSource)) {
-          this._fireLog('invalid column definitions');
+          this._fireLogFire('invalid-columns-data');
           return false;
         }
 
@@ -331,7 +331,7 @@ Example:
       this._startBuildTimer();
 
       if (!this.isValidItemsArray(this.items)) {
-        this._fireLog('invalid item data');
+        this._fireLogFire('invalid-items-data');
         return false;
       }
 
