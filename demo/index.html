@@ -21,9 +21,10 @@
       margin: 20px;
       padding: 20px;
       border: 5px solid dimgray;
-      background-color:white;
+      background-color: white;
       display: none;
     }
+
     .shown {
       display: block;
     }
@@ -33,6 +34,13 @@
       font-size: 16px;
       font-style: italic;
       padding: 0 0 0 20px;
+    }
+
+    .status span.json {
+      font-size: 12px;
+      line-height: 13px;
+      font-style: normal;
+      color: inherit;
     }
 
     h2, h4 {
@@ -51,8 +59,9 @@
     li {
       line-height: 24px;
     }
+
     body {
-      background-color:lightgray;
+      background-color: lightgray;
     }
   </style>
 
@@ -91,77 +100,93 @@
         items: demoItems5
       }
     ];
-    var totalDemos = _.size(demoConfigs);
+    var totalDemos = demoConfigs.length;
 
-    // Generate one table at a time so rendering timings are accurate:
-
-    function prepDemos() {
-
-      var
-          demoNum,
-          demosReady = 0;
-
-      _.forEach(demoConfigs, function (cfg, idx) {
-        window.addEventListener('demo-' + (idx + 1) + '-ready', function (evt) {
-          demoNum = eventToDemoNum(evt);
-          setDemoStatus(demoNum, 'Ready.');
-          demoConfigs[demoNum-1].demo = evt.target;
-          demosReady++;
-          if (demosReady == totalDemos) {
-            startDemos();
-          }
-        });
-      });
-    }
+    // Generate one table at a time so rendering times are accurate:
 
     function startDemos() {
+      var demoIndex;
       _.forEach(demoConfigs, function (cfg, idx) {
         window.addEventListener('demo-' + (idx + 1) + '-rendered', function (evt) {
-          demoNum = eventToDemoNum(evt);
-          setDemoStatus(demoNum, 'Rendered in ' + evt.target.renderTime + ' seconds.');
-          if (idx < totalDemos - 1) {
-            startDemo(idx + 1);
+          demoIndex = eventToDemoIndex(evt);
+          setDemoStatus(demoIndex, 'Rendered in ' + evt.target.renderTime + ' seconds.');
+          if (demoIndex < totalDemos - 1) {
+            startDemo(demoIndex + 1)
           }
         });
       });
       startDemo(0);
     }
 
-    function startDemo(idx) {
-      setDemoStatus(idx+1, 'Setting data.');
-      var cfg = demoConfigs[idx];
-      if (cfg.cols) {
-        cfg.demo.columns = cfg.cols;
+    function startDemo(demoIndex) {
+      var demoNum = demoIndex + 1;
+      var readyEvent = 'demo-' + demoNum + '-ready';
+      var demoSelector = '#demo' + demoNum + ' ll-table';
+      var demo = getDemo(demoIndex);
+      setPolymerElementAttributes(demoSelector, readyEvent, demoConfigs[demoIndex]);
+      if (demo) {
+        demo.classList.add('shown');
       }
-      if (cfg.items) {
-        cfg.demo.items = cfg.items;
+    }
+
+    function setDemoStatus(demoIndex, str) {
+      var demo = getDemo(demoIndex);
+      if (demo) {
+        demo.querySelector(".status").innerHTML = str;
       }
     }
 
-    function setDemoStatus(demoNum, str) {
-      document.getElementById('demo' + demoNum).querySelector(".status").innerHTML = str;
+    function getDemo(demoIndex) {
+      return document.getElementById('demo' + (demoIndex + 1));
     }
 
-    function eventToDemoNum(evt) {
-      return evt.type.replace(/[^0-9]/g, '');
+    function eventToDemoIndex(evt) {
+      return parseInt(evt.type.replace(/[^0-9]/g, '')) - 1;
     }
 
-    prepDemos();
+    /**
+     * Set attribute(s) on a Polymer element now or when it's ready.
+     *
+     * If element exists and element's isReady property is true, set them immediately.
+     * If element doesn't exist, or element's isReady property is false, set them when element fires eventType.
+     *
+     * Dependencies: lodash.js
+     *
+     * @param selector {string} The HTML selector of the Polymer element, unique within parentNode.
+     * @param readyEvent {string} The event type expected from Polymer element when it is ready.
+     * @param attrs {object} Attributes to set on the Polymer element.
+     * @param parentNode {object} HTML node that will listen for ready event. Defaults to document.
+     */
+    function setPolymerElementAttributes(selector, readyEvent, attrs, parentNode) {
+      parentNode = parentNode || document;
+      var el = parentNode.querySelector(selector);
+      if (el && el.isReady) {
+        _.assign(el, attrs);
+      } else {
+        parentNode.addEventListener(readyEvent, function (evt) {
+          _.assign(evt.target, attrs);
+        });
+      }
+    }
+
+    window.onload = startDemos;
 
   </script>
 </head>
 <body>
 
-<div class="ll-table-demo">
+<div class="ll-table-demo shown">
   <h2>Watch the console for events while interacting with tables.</h2>
   <ul>
-    <li>Rendering times are measured from the setting of the 'items' array property to the appearance of all cells in the table including any dynamically-generated HTML cell content like buttons.</li>
-    <li>Demos output events and other info to console because they have the 'fire-log' attribute set.</li>
+    <li>Rendering times are measured from the setting of the 'items' array property to the appearance of all cells in
+      the table including any dynamically-generated HTML cell content like buttons.
+    </li>
+    <li>ll-table instances output events and other info to console because they have the 'fire-log' attribute set.</li>
   </ul>
   <h4>Play with the data in sample-data.js</h4>
 </div>
 
-<div class="ll-table-demo" id="demo1">
+<div class="ll-table-demo shown" id="demo1">
   <h2>Demo 1<span class="status"></span></h2>
   <h4>Just data. No headers.</h4>
   <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-log></ll-table>
@@ -234,16 +259,10 @@
 
 <div class="ll-table-demo" id="demo9">
   <h2>Demo 9<span class="status"></span></h2>
-  <h4>100 rows of random data with IDs and checkboxes displayed, for speed testing.</h4>
+  <h4>100 rows of random data with IDs and checkboxes for speed testing.</h4>
   <ll-table show-header item-selector-type="checkbox" show-item-ids fire-log-name="demo-9"
             fire-log-event-prefix="demo-9-"
             fire-log></ll-table>
 </div>
-
-<script>
-  _.forEach(document.querySelectorAll('.ll-table-demo'),function(demo){
-    demo.classList.add('shown');
-  });
-</script>
 </body>
 </html>
