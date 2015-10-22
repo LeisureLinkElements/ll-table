@@ -207,6 +207,12 @@ Example:
         }
       },
 
+      isReady: {
+        type: Boolean,
+        value: false,
+        readOnly: true
+      },
+
       renderTime: {
         type: Number,
         value: 0,
@@ -222,6 +228,7 @@ Example:
     // Element Lifecycle
 
     ready: function () {
+      this._setIsReady(true);
       this._fireLogFire('ready');
     },
 
@@ -424,10 +431,8 @@ Example:
 
     _waitToAddDynamicContent: function () {
       var _this = this;
-      this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
         if (_this.$$('#' + _this._lastCellId) !== null) {
-          _this._fireLog('Last table cell #' + _this._lastCellId + ' created.');
           _this._addDynamicContent();
         }
       }, 10);
