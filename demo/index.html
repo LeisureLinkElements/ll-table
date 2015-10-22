@@ -148,7 +148,7 @@
      * Set attribute(s) on a Polymer element now or when it's ready.
      *
      * If element exists and element's isReady property is true, set them immediately.
-     * If element doesn't exist, or element's isReady property is false, set them when element fires eventType.
+     * If element doesn't exist, or element's isReady property is false, set them when element fires readyEvent.
      *
      * Dependencies: lodash.js
      *
@@ -164,6 +164,7 @@
         _.assign(el, attrs);
       } else {
         parentNode.addEventListener(readyEvent, function (evt) {
+          evt.target.removeEventListener(evt.type);
           _.assign(evt.target, attrs);
         });
       }
