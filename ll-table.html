@@ -18,18 +18,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 <!--
-Data-driven, table-less table generator with static or configuration-generated cell content, event-firing, column-wide repeating elements, and configurable item ID collection.
+Configurable, table-less table generator with static or configuration-generated cell content, event-firing, column-wide repeating elements, and item selection.
 
 Example:
 
     <ll-table></ll-table>
 
 ### Features:
-- **Configuration-driven:** Generates and updates entire table from a single json object. Dynamic insertion and deletion of individual rows is not supported.
-- **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements.
-- **Configuration-generated elements with event firing:** Generate any html element within a cell by setting an html tag and optional attributes, class list, inner-html, and list of event in/out pairs. The element listens for the "in" event and fires the corresponding "out" event with a data object containing the either the item ID only, or an object containing the event's configuration, and all element attributes (including a pseudo 'checked' attribute for checkboxes). Currently, only single, non-nested elements are supported.
+- **Configuration-driven:** Generates and updates entire table from one required and one optional json object, plus optional element attributes. (See demo and /demo/sample-data.js for examples.) Dynamic insertion and deletion of individual rows is not supported.
+- **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements:
+ - Example - Static cell content: Any string or numeric data. (No HTML tags).
+ - Example - Configuration-generated cell content with event-handling. If you need a more complete HTML element displayed within a cell, use an 'element' object in place of a string or number:
+        element: {
+          tag: 'span', // The type of HTML element that to generate.
+          innerHTML: 'DELETE', // Optional content inside tag (currently no HTML allowed inside the main HTML tag)
+          classes: [ // Optional list of classes to add to the element. Does not override the Polymer classes automatically added by Polymer.dom.
+            'btn',
+            'btn-primary',
+            'remove-unit'
+          ],
+          events: [ // Optional event configuration:
+            {
+              in: 'click', // Event to listen for.
+              out: 'remove-unit', // Event to fire.
+            }
+          ]
+        }
 - **Column-wide repeating content:** Populate an entire column of cells with the same static content or generated element by defining it in the column's configuration.
-- **Column-wide item selection UI:** When a column definition contains an itemSelector node, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. For example, if the 'assoc' column definition contains the node itemSelector: {type: 'checkbox'}, then a checkbox will appear in each cell of the column. Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
+- **Column-wide item selection UI:** Any column may be designated as an item selection UI column. In this case, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'selected' key to true in the cfg.items[..].cells objects. ('selected' is never displayed as a column value itself). Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
 - **Optional column headers:** To show column header row, include a 'label' node in at least one column definition.
 
@@ -41,14 +57,15 @@ Example:
 
   <template>
     <div class="table">
-      <template is="dom-if" if="{{hasHeaders}}" restamp="true">
+      <template is="dom-if" if="[[headers]]" restamp="true">
         <div class="table-header">
           <div class="table-row">
-            <template is="dom-repeat" items="[[colVals]]" restamp="true">
+            <template is="dom-repeat" items="[[headers]]" as="cell" restamp="true">
               <div class="table-cell">
-                <template is="dom-if" if="{{item.label}}" restamp="true">[[item.label]]</template>
-                <template is="dom-if" if="{{item.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
+                <template is="dom-if" if="{{cell.label}}" restamp="true">[[cell.label]]</template>
+                <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
                                                                                                 id="masterItemSelector"
+                                                                                                class="checkbox"
                                                                                                 on-change="_masterItemSelectorChanged">
                 </template>
               </div>
@@ -57,30 +74,30 @@ Example:
         </div>
       </template>
       <div class="table-body">
-        <template is="dom-repeat" id="tableItems" items="[[cfg.items]]">
+        <template is="dom-repeat" id="tableItems" items="[[rows]]" as="row">
           <div class="table-row">
-            <template is="dom-repeat" items="[[item.cellVals]]" as="cell">
+            <template is="dom-repeat" items="[[row.cells]]" as="cell">
               <div class="table-cell" id="[[cell.id]]">
                 <template is="dom-if" if="{{cell.html}}" restamp="true">[[cell.html]]</template>
                 <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
                                                                                                 on-change="_itemSelectorChanged"
-                                                                                                class="item-selector">
+                                                                                                class="item-selector checkbox">
                 </template>
               </div>
             </template>
           </div>
         </template>
-        <array-selector id="itemSelector" items="{{cfg.items}}" selected="{{selectedItems}}" multi
-                        toggle></array-selector>
       </div>
     </div>
+    <array-selector id="itemSelector" items="{{rows}}" selected="{{selectedItems}}" multi
+                    toggle></array-selector>
   </template>
 
 </dom-module>
 
 <script>
 
-  Polymer({
+  LLTable = Polymer({
 
     is: 'll-table',
 
@@ -88,38 +105,119 @@ Example:
 
     properties: {
 
-      // The raw config set on element.
-      config: {
+      // Optional array of column configuration objects.
+      columns: {
         type: Object,
-        observer: '_setConfig'
-      },
-
-      // The configuration generated for internal use.
-      cfg: Object,
-
-      // Array of column values for use in table header repeating column template
-      colVals: {
-        type: Array,
-        value: function() {
-          return [];
+        value: function () {
+          return {};
         }
       },
 
-      isAttached: false,
+      // Data for each row.
+      items: {
+        type: Array
+      },
 
       // IDs of selected items.
       selectedItemIds: {
         type: Array,
-        observer: '_selectedItemIdsChanged',
+        readOnly: true,
+        observer: '_selectedItemIdsChanged'
+      },
+
+      // If the showHeader property is set to true,
+      // the column header will contain the itemIdColumnLabel property value.
+      // Set element attribute 'show-item-ids'
+      // When true, item IDs (if any) are displayed in their own column.
+      showItemIds: {
+        type: Boolean,
+        value: false
+      },
+
+      // Set element attribute 'item-id-column-name'
+      // Alternative label for item ID column if shown.
+      itemIdColumnLabel: {
+        type: String,
+        value: 'id'
+      },
+
+      // Set as element attribute 'item-selector-type'
+      // Valid values: 'none', 'checkbox' (more may be added later)
+      itemSelectorType: {
+        type: String,
+        value: 'none'
+      },
+
+      // Valid values: 'left', 'right'
+      // Set as element attribute 'item-selector-pos'
+      // Positions the item selector column on left or right side of table.
+      itemSelectorPos: {
+        type: String,
+        value: 'left'
+      },
+
+      // Set as element attribute 'show-header'
+      // NOTE: If the itemSelectorType is != 'none',
+      // header row will be shown anyway to display master selector.
+      // When true, header row is displayed with column names.
+      showHeader: {
+        type: Boolean,
+        value: false
+      },
+
+      // Objects for use in table header template.
+      headers: {
+        type: Array,
         value: function () {
           return [];
+        },
+        readOnly: true
+      },
+
+      // Is set by _setItems method when items property changes.
+      // Objects for use in table body template.
+      rows: {
+        type: Array,
+        value: function () {
+          return [];
+        },
+        readOnly: true
+      },
+
+      _itemSelectorCellConfig: {
+        type: Object,
+        computed: '_computeItemSelectorCellConfig(itemSelectorType)'
+      },
+
+      _hasItemSelectors: {
+        type: Boolean,
+        computed: '_computeHasItemSelectors(itemSelectorType)'
+      },
+
+      // Is set by _buildHeaders to either this.columns or the first of this.items
+      // in order to define the master list of columns for building headers and rows.
+      _columnsDefSource: Object,
+
+      // Set by _buildRows.
+      // Keys are cell IDs, values are dynamic content definition objects.
+      _dynamicContent: {
+        type: Object,
+        value: function () {
+          return {}
         }
       },
 
-      hasHeaders: false,
-
-      dynamicContentAdded: false
+      renderTime: {
+        type: Number,
+        value: 0,
+        readOnly: true
+      }
     },
+
+    observers: [
+      '_buildHeaders(showHeader,itemSelectorType,items,columns)',
+      '_buildRows(itemSelectorType,items,columns)'
+    ],
 
     // Element Lifecycle
 
@@ -129,204 +227,282 @@ Example:
 
     attached: function () {
       this._fireLogFire('attached');
-      this.isAttached = true;
     },
 
     // Element Behavior
 
-    /**
-     * Sets table configuration and data.
-     * @param {object} cfg
-     */
-    _setConfig: function (newConfig) {
-
-      this._fireLog('_setConfig called with', newConfig);
-
-      if (!this.isValidConfig(newConfig)) {
-        this._fireLog('Invalid config!');
-        return false;
-      }
-
-      this.cfg = _.cloneDeep(newConfig);
-
-      this.selectedItemIds = [];
-
-      var _this = this, cellContent, colVal;
-
-      // If content key is set in any column config,
-      // copy the content config to each cell config in the column.
-      var tempColVals = [];
-      _.forEach(this.cfg.cols, function (col, colName) {
-        colVal = {label: ''};
-        if (_.isString(col.label)) {
-          _this.hasHeaders = true;
-          colVal = _.cloneDeep(col);
-        }
-        _this.cfg.items.forEach(function (item, itemNum) {
-          if (_.isObject(col.content)) {
-            if (col.content.itemSelector) {
-              cellContent = _this._getItemSelectorCellContent(col.content.itemSelector);
-              _this.hasHeaders = true;
-            } else {
-              cellContent = _.cloneDeep(col.content);
-            }
-            _this.cfg.items[itemNum].cells[colName] = cellContent;
-            colVal = cellContent;
-          }
-        });
-        tempColVals.push(colVal);
-      });
-      this.colVals = tempColVals;
-
-      // Assign an id to each cell, converting cells with just string content to objects:
-      this.cfg.items.forEach(function (item, itemNum) {
-        _.forEach(item.cells, function (cell, colName) {
-          if (!_.isObject(cell)) {
-            _this.cfg.items[itemNum].cells[colName] = {html: _(cell).toString()};
-          }
-          _this.lastCellId = _this._getCellId(item.id, colName);
-          _this.cfg.items[itemNum].cells[colName].id = _this.lastCellId;
-        });
-        _this.cfg.items[itemNum].cellVals = _.values(_this.cfg.items[itemNum].cells); // For template
-      });
-      this._fireLog('Converted new config to', this.cfg);
-
-      this._addDynamicContentAfterTemplateCompletion();
-
-      return true;
-    },
-
-    _getItemSelectorCellContent: function (itemSelector) {
-      var itemSelectorCfg = {};
-      itemSelectorCfg[itemSelector.type] = true;
+    _computeItemSelectorCellConfig: function (itemSelectorType) {
+      var val = {};
+      val[itemSelectorType] = true;
       return {
-        itemSelector: itemSelectorCfg
+        itemSelector: val
       };
     },
 
-    _addDynamicContentAfterTemplateCompletion: function () {
+    _computeHasItemSelectors: function (itemSelectorType) {
+      return itemSelectorType !== 'none';
+    },
+
+    // Return true if columns keys iterate as strings and values are objects.
+    isValidColumnsConfig: function(columns) {
+      if(!_.isObject(columns)) {
+        return false;
+      }
+      _.forEach(columns, function(col, key){
+        if(!_.isString(key) || !_.isObject(col)) {
+          return false;
+        }
+      });
+      return true;
+    },
+
+    // Return true if items is an array of objects, and each object's keys iterate as strings:
+    isValidItemsArray: function(items) {
+      if(!_.isArray(items)) {
+        return false;
+      }
+      _.forEach(items, function(item, idx){
+        if(!_.isObject(item)) {
+          return false;
+        }
+        _.forEach(item, function(col, key){
+          if(!_.isString(col)) {
+            return false;
+          }
+        });
+      });
+      return true;
+    },
+
+    _buildHeaders: function () {
+
+      this._startBuildTimer();
+
+      // If there's an item selector, show the header row in order to display select all/none selector:
+      if (this.itemSelectorType != 'none') {
+        this.showHeader = true;
+      }
+
+      if (this.showHeader) {
+
+        // Build a list of column names based on keys in first item and keys of optional columns property:
+        this._columnsDefSource = !_.isEmpty(this.columns) ? this.columns : this.items[0];
+
+        if (!this.isValidColumnsConfig(this._columnsDefSource)) {
+          this._fireLogFire('invalid-columns-data');
+          return false;
+        }
+
+        var _this = this,
+            headers = [];
+
+        if (this.itemSelectorType != 'none' && this.itemSelectorPos === 'left') {
+          headers.push(this._itemSelectorCellConfig);
+        }
+        _.forEach(this._columnsDefSource, function (colDef, colKey) {
+          if (colKey === 'id') {
+            if (_this.showItemIds) {
+              headers.push({label: _this.itemIdColumnLabel});
+            }
+          } else if (colKey != 'selected') {
+            headers.push({label: _this._getColumnLabelFromColumnKey(colKey)});
+          }
+        });
+
+        if (this.itemSelectorType != 'none' && this.itemSelectorPos === 'right') {
+          headers.push(this._itemSelectorCellConfig);
+        }
+
+        this._setHeaders(headers);
+
+        return true;
+
+      }
+    },
+
+    _getColumnLabelFromColumnKey: function (columnKey) {
+      if (_.isString(columnKey)) {
+        return _.has(this.columns, columnKey + '.label') ? this.columns[columnKey].label : columnKey.replace('_', ' ');
+      }
+    },
+
+    _buildRows: function () {
+
+      this._startBuildTimer();
+
+      if (!this.isValidItemsArray(this.items)) {
+        this._fireLogFire('invalid-items-data');
+        return false;
+      }
+
+      this._setSelectedItemIds([]);
+
+      if (_.isEmpty(this._columnsDefSource)) {
+        this._columnsDefSource = this.items[0];
+      }
+
+      var _this = this,
+          rows = [],
+          row, itemId, colWideContent, cell, cellId;
+
+      _.forEach(this.items, function (item, itmIdx) {
+        itemId = item.id ? item.id : itmIdx;
+        row = {
+          id: itemId,
+          cells: []
+        };
+
+        if (_this.itemSelectorType != 'none' && _this.itemSelectorPos === 'left') {
+          row.cells.push(_this._itemSelectorCellConfig);
+        }
+
+        // Iterate thru each non-item-selector column:
+        if (_.isObject(_this._columnsDefSource)) {
+          _.forEach(_this._columnsDefSource, function (colDef, colKey) {
+            cellId = _this._getCellId(itemId, colKey);
+            cell = {id: cellId};
+            if (colKey === 'id') {
+              if (_this.showItemIds) {
+                // Display item ID in its own column:
+                cell.html = itemId;
+              }
+            } else if (_.has(_this, 'columns.' + colKey + '.content')) {
+              // Column-wide content is defined for this column.
+              colWideContent = _this.columns[colKey].content;
+              if (_.isObject(colWideContent)) {
+                // The column-wide content is an object defining dynamic content.
+                cell.html = '';
+                _this._dynamicContent[cellId] = {
+                  itemId: itemId,
+                  content: colWideContent
+                };
+              } else {
+                // The column-wide content can be displayed as a string.
+                cell.html = _(colWideContent).toString();
+              }
+            } else if (colKey != 'selected') {
+              if (_.isObject(item[colKey])) {
+                // Dynamic content is defined for this cell.
+                cell.html = '';
+                _this._dynamicContent[cellId] = {
+                  itemId: itemId,
+                  content: item[colKey]
+                };
+              } else {
+                cell.html = item[colKey];
+              }
+            }
+            if (typeof cell.html === 'string') {
+              row.cells.push(cell);
+              _this._lastCellId = cellId;
+            }
+          });
+        }
+
+        if (_this.itemSelectorType != 'none' && _this.itemSelectorPos === 'right') {
+          row.cells.push(_this._itemSelectorCellConfig);
+        }
+
+        rows.push(row);
+
+      });
+
+      this._waitToAddDynamicContent();
+
+      this._setRows(rows);
+    },
+
+    _startBuildTimer: function() {
+      if(!this._buildStartTime) {
+        this._buildStartTime = new Date().getTime();
+      }
+    },
+
+    _stopBuildTimer: function() {
+      this._setRenderTime((new Date().getTime() - this._buildStartTime) / 1000);
+    },
+
+    _waitToAddDynamicContent: function () {
       var _this = this;
-      _this._fireLog('Waiting for last table cell to be created...');
+      this._fireLog('Waiting for last table cell to be created...');
       this.dynamicContentWaiter = window.setInterval(function () {
-        if (_this.isAttached && window.document.querySelector('#' + _this.lastCellId) !== null) {
-          _this._fireLog('Last table cell #' + _this.lastCellId + ' created.');
+        if (_this.$$('#' + _this._lastCellId) !== null) {
+          _this._fireLog('Last table cell #' + _this._lastCellId + ' created.');
           _this._addDynamicContent();
         }
-      }, 20);
-    },
-
-    /**
-     * Returns true if cfg is valid raw configuration.
-     * @param {object} cfg
-     */
-    isValidConfig: function (cfg) {
-      return _.isObject(cfg) &&_.isObject(cfg.cols) && _.isArray(cfg.items);
-    },
-
-    /**
-     * Returns true if cfg is valid configuration and has one or more items.
-     * @param {object} cfg
-     */
-    hasItems: function (cfg) {
-      return this.isValidConfig(cfg) && cfg.items.length;
+      }, 10);
     },
 
     _addDynamicContent: function () {
 
       window.clearInterval(this.dynamicContentWaiter);
 
-      if (this.isValidConfig(this.cfg)) {
-
-        this._fireLog('_addDynamicContent proceeding');
-
-        var
-            _this = this,
-            spec,
-            tableCell,
-            cellId,
-            polyment,
-            eventInfo;
-
-        this.cfg.items.forEach(function (item) {
-          _.forEach(item.cells, function (cell, colName) {
-            cellId = _this._getCellId(item.id, colName);
-            if (_.isObject(cell.element) && _.isString(cell.element.tag)) {
-              spec = cell.element;
-              tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
-              polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
-              if (_.isArray(spec.classes)) {
-                spec.classes.forEach(function (cls) {
-                  polyment.classList.add(cls); // Don't overwrite polymer classes.
-                });
-              }
-              if (_.isObject(spec.attributes)) {
-                _.forEach(spec.attributes, function (val, name) {
-                  if (name == 'checked') {
-                    if (val) {
-                      polyment.checked = 'checked';
+      if (!_.isEmpty(this._dynamicContent)) {
+        var _this = this;
+        _.forEach(this._dynamicContent, function (cell, cellId) {
+          var tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
+          if (tableCell && cell.content) {
+            // Presence of cell.content confirms there is dynamic content to generate.
+            if (cell.content.element) {
+              // This particular dynamic content is a dynamically-generated element.
+              // There may be more types of dynamic content added later, hence this extra conditional block.
+              var spec = cell.content.element;
+              var polyment = Polymer.dom(tableCell).appendChild(document.createElement(spec.tag));
+              if (polyment) {
+                // Add classes to element without overwriting polymer classes:
+                if (_.isArray(spec.classes)) {
+                  _.forEach(spec.classes, function (cls) {
+                    polyment.classList.add(cls);
+                  });
+                }
+                // Add attributes to element if any specified:
+                if (_.isObject(spec.attributes)) {
+                  _.forEach(spec.attributes, function (val, name) {
+                    if (name == 'checked') {
+                      if (val) {
+                        polyment.checked = 'checked';
+                      }
+                    } else {
+                      polyment.setAttribute(name, val);
                     }
-                  } else {
-                    polyment.setAttribute(name, val);
-                  }
-                });
-              }
-              if (_.isString(spec.innerHTML)) {
-                Polymer.dom(polyment).innerHTML = spec.innerHTML;
-              }
-              if (_.isArray(spec.events)) {
-                spec.events.forEach(function (evtCfg) {
-                  if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
-                    polyment.addEventListener(evtCfg.in, function (evt) {
-                      eventInfo = {
-                        itemId: item.id,
-                        config: _.cloneDeep(evtCfg),
-                        targetAttributes: _this._getEventElementAttributes(evt)
-                      };
-                      _this._handleCellEvent(eventInfo);
-                    });
-                  }
-                });
+                  });
+                }
+                // Add any inner-html to element if specified:
+                if (_.isString(spec.innerHTML)) {
+                  Polymer.dom(polyment).innerHTML = spec.innerHTML;
+                }
+                // Add any event handlers to element if specified:
+                if (_.isArray(spec.events)) {
+                  _.forEach(spec.events, function (evtCfg) {
+                    if (_.isObject(evtCfg) && _.isString(evtCfg.in) && _.isString(evtCfg.out)) {
+                      polyment.addEventListener(evtCfg.in, function () {
+                        _this._handleCellEvent(evtCfg.out, cell.itemId);
+                      });
+                    }
+                  });
+                }
               }
             }
-          });
+          }
         });
-        this._deselectAll();
-        this._fireLog('_addDynamicContent done');
       }
+
+      if (this._hasItemSelectors) {
+        this._initItemSelections();
+      }
+
+      this._stopBuildTimer();
+
+      this._fireLogFire('rendered');
 
     },
 
-    _handleCellEvent: function (eventInfo) {
-      var data = eventInfo.config.itemIdOnly ? eventInfo.itemId : eventInfo;
-      this._fireLogFire(eventInfo.config.out, data);
+    _handleCellEvent: function (eventOut, itemId) {
+      this._fireLogFire(eventOut, itemId);
     },
 
     _getCellId: function (itemId, colName) {
       return 'itm-' + itemId + '-c-' + colName;
-    },
-
-    /**
-     * Return object with useful information about an event's target
-     *
-     * @param   {object}  evt
-     * @returns {object}
-     */
-    _getEventElementAttributes: function (evt) {
-      evt = evt || window.event;
-      if (!_.isObject(evt)) return {};
-      var elem = evt.target || evt.srcElement;
-      return this._getElementAttributes(elem);
-    },
-
-    _getElementAttributes: function (elem) {
-      var attr = {};
-      if (!_.isObject(elem)) return attr;
-      var attrNodeMap = Array.prototype.slice.call(elem.attributes);
-      attrNodeMap.forEach(function (node) {
-        attr[node.name] = node.value;
-      });
-      attr.checked = elem.checked;
-      return attr;
     },
 
     /**
@@ -336,7 +512,7 @@ Example:
     _getSelectedItemIds: function () {
       var ids = [];
       if (_.isArray(this.selectedItems)) {
-        this.selectedItems.forEach(function (item) {
+        _.forEach(this.selectedItems, function (item) {
           ids.push(item.id);
         });
       }
@@ -345,36 +521,24 @@ Example:
 
     _itemSelectorChanged: function (e) {
       var item = this.$.tableItems.itemForElement(e.target);
-      this.$.itemSelector.deselect(item);
-      if(e.target.checked) {
-        this.$.itemSelector.select(item);
-      }
+      this._toggleItemSelector(item, e.target.checked);
       this._updateMasterItemSelector();
       this._updateSelectedItemIds();
     },
 
     _masterItemSelectorChanged: function (e) {
-      var _this = this, selectorItem;
-      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
-        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
-        _this.$.itemSelector.deselect(selectorItem);
-        selectorEl.checked = false;
-        if (e.target.checked) {
-          _this.$.itemSelector.select(selectorItem);
-          selectorEl.checked = true;
-        }
-      });
+      this._toggleAllItemSelectorInputs(e.target.checked);
       this._updateSelectedItemIds();
     },
 
     _updateMasterItemSelector: function () {
-      if (this.cfg && _.isArray(this.cfg.items) && _.isArray(this.selectedItems)) {
-        this.$$('#masterItemSelector').checked = this.selectedItems.length === this.cfg.items.length;
+      if (this.$$('#masterItemSelector') && !_.isEmpty(this.items) && !_.isEmpty(this.selectedItems)) {
+        this.$$('#masterItemSelector').checked = this.selectedItems.length === this.items.length;
       }
     },
 
     _updateSelectedItemIds: function () {
-      this.selectedItemIds = this._getSelectedItemIds();
+      this._setSelectedItemIds(this._getSelectedItemIds());
     },
 
     // Using observer rather than notify=true in order to use fireLog,
@@ -383,15 +547,49 @@ Example:
       this._fireLogFire('selected-items-changed', newValue);
     },
 
-    _deselectAll: function() {
-      var _this = this, selectorItem;
-      Polymer.dom(this.root).querySelectorAll('.item-selector').forEach(function (selectorEl) {
-        selectorItem = _this.$.tableItems.itemForElement(selectorEl);
-        selectorEl.checked = false;
-        _this.$.itemSelector.deselect(selectorItem);
+    _initItemSelections: function () {
+      var selections = [];
+      _.forEach(this.items, function (item) {
+        selections.push(item.selected ? true : false);
       });
-      this._updateMasterItemSelector();
-      this._updateSelectedItemIds();
+      this._toggleAllItemSelectorInputs(selections);
+    },
+
+    // Toggle all item selector inputs true, false, or by array of booleans:
+    _toggleAllItemSelectorInputs: function (selected) {
+      var blanket;
+      if (_.isBoolean(selected)) {
+        blanket = true;
+      } else if (_.isArray(selected)) {
+        blanket = false
+      } else {
+        return false;
+      }
+      var inputs = Polymer.dom(this.root).querySelectorAll('.item-selector');
+      if (_.isArray(inputs)) {
+        var _this = this, sel;
+        _.forEach(inputs, function (selectorEl, elIdx) {
+          sel = blanket ? selected : selected[elIdx];
+          _this._toggleItemSelectionInput(selectorEl, sel);
+        });
+        this._updateMasterItemSelector();
+        this._updateSelectedItemIds();
+      }
+    },
+
+    // Check or un-check checkbox or radio button and its associated itemSelector item:
+    _toggleItemSelectionInput: function (inputEl, selected) {
+      var selectorItem = this.$.tableItems.itemForElement(inputEl);
+      this._toggleItemSelector(selectorItem, selected);
+      inputEl.checked = selected;
+    },
+
+    // Select or deselect the item in the array-selector (not the checkbox element)
+    _toggleItemSelector: function (item, selected) {
+      this.$.itemSelector.deselect(item);
+      if (selected) {
+        this.$.itemSelector.select(item);
+      }
     }
 
   });
