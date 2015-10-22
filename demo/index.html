@@ -156,7 +156,7 @@
   <h2>Watch the console for events while interacting with tables.</h2>
   <ul>
     <li>Rendering times are measured from the setting of the 'items' array property to the appearance of all cells in the table including any dynamically-generated HTML cell content like buttons.</li>
-    <li>Demos output events and other info to console because they have the 'fire-logging-enabled' attribute set.</li>
+    <li>Demos output events and other info to console because they have the 'fire-log' attribute set.</li>
   </ul>
   <h4>Play with the data in sample-data.js</h4>
 </div>
@@ -164,13 +164,13 @@
 <div class="ll-table-demo" id="demo1">
   <h2>Demo 1<span class="status"></span></h2>
   <h4>Just data. No headers.</h4>
-  <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-logging-enabled></ll-table>
+  <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo2">
   <h2>Demo 2<span class="status"></span></h2>
   <h4>Like Demo 1, same data, with header. Column labels are auto-set from item data.</h4>
-  <ll-table show-header fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-logging-enabled></ll-table>
+  <ll-table show-header fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo3">
@@ -182,7 +182,7 @@
     <li>If you check all item checkboxes, the select all/none checkbox in the header reflects that.</li>
   </ul>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-3" fire-log-event-prefix="demo-3-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo4">
@@ -195,7 +195,7 @@
   </ul>
   <ll-table show-header show-item-ids item-selector-type="checkbox" fire-log-name="demo-4"
             fire-log-event-prefix="demo-4-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo5">
@@ -207,21 +207,21 @@
   </ul>
   <ll-table show-header item-selector-type="checkbox" item-selector-pos="right" fire-log-name="demo-5"
             fire-log-event-prefix="demo-5-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo6">
   <h2>Demo 6<span class="status"></span></h2>
   <h4>Like Demo 5, with some items pre-selected in data.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-6" fire-log-event-prefix="demo-6-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo7">
   <h2>Demo 7<span class="status"></span></h2>
   <h4>Like Demo <b>5 also</b>, but with one of the cells configured as an event-firing button in the data.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-7" fire-log-event-prefix="demo-7-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo8">
@@ -229,7 +229,7 @@
   <h4>Like Demo <b>5 also</b>, but with one of the <b>columns</b> configured to <b>populate all rows</b> with an
     event-firing button.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-8" fire-log-event-prefix="demo-8-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo9">
@@ -237,7 +237,7 @@
   <h4>100 rows of random data with IDs and checkboxes displayed, for speed testing.</h4>
   <ll-table show-header item-selector-type="checkbox" show-item-ids fire-log-name="demo-9"
             fire-log-event-prefix="demo-9-"
-            fire-logging-enabled></ll-table>
+            fire-log></ll-table>
 </div>
 
 <script>
