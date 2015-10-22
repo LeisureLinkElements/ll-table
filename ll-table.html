@@ -65,6 +65,7 @@ Example:
                 <template is="dom-if" if="{{cell.label}}" restamp="true">[[cell.label]]</template>
                 <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
                                                                                                 id="masterItemSelector"
+                                                                                                class="checkbox"
                                                                                                 on-change="_masterItemSelectorChanged">
                 </template>
               </div>
@@ -80,23 +81,23 @@ Example:
                 <template is="dom-if" if="{{cell.html}}" restamp="true">[[cell.html]]</template>
                 <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
                                                                                                 on-change="_itemSelectorChanged"
-                                                                                                class="item-selector">
+                                                                                                class="item-selector checkbox">
                 </template>
               </div>
             </template>
           </div>
         </template>
-        <array-selector id="itemSelector" items="{{rows}}" selected="{{selectedItems}}" multi
-                        toggle></array-selector>
       </div>
     </div>
+    <array-selector id="itemSelector" items="{{rows}}" selected="{{selectedItems}}" multi
+                    toggle></array-selector>
   </template>
 
 </dom-module>
 
 <script>
 
-  Polymer({
+  LLTable = Polymer({
 
     is: 'll-table',
 
