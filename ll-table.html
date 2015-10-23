@@ -116,7 +116,10 @@ Example:
 
       // Data for each row.
       items: {
-        type: Array
+        type: Array,
+        value: function() {
+          []
+        }
       },
 
       // IDs of selected items.
@@ -208,12 +211,6 @@ Example:
         }
       },
 
-      isReady: {
-        type: Boolean,
-        value: false,
-        readOnly: true
-      },
-
       renderTime: {
         type: Number,
         value: 0,
@@ -229,7 +226,6 @@ Example:
     // Element Lifecycle
 
     ready: function () {
-      this._setIsReady(true);
       this._fireLogFire('ready');
     },
 
