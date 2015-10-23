@@ -23,7 +23,8 @@
     "polymer": "Polymer/polymer#^1.0.0",
     "ll-theme": "LeisureLinkElements/ll-theme",
     "lodash": ">=3.10.1",
-    "ll-firelog-behavior": "LeisureLinkElements/ll-firelog-behavior"
+    "ll-firelog-behavior": "LeisureLinkElements/ll-firelog-behavior",
+    "ll-seance-behavior": "LeisureLinkElements/ll-seance-behavior"
 
   },
   "devDependencies": {
