@@ -211,6 +211,13 @@ Example:
         }
       },
 
+      _dynamicContentWaiter: {
+        type: Object,
+        value: function () {
+          return {};
+        }
+      },
+
       renderTime: {
         type: Number,
         value: 0,
@@ -428,7 +435,8 @@ Example:
 
     _waitToAddDynamicContent: function () {
       var _this = this;
-      this.dynamicContentWaiter = window.setInterval(function () {
+      window.clearInterval(this._dynamicContentWaiter);
+      this._dynamicContentWaiter = window.setInterval(function () {
         if (_this.$$('#' + _this._lastCellId) !== null) {
           _this._addDynamicContent();
         }
