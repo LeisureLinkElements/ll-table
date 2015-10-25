@@ -524,8 +524,8 @@ Example:
     _itemSelectorChanged: function (e) {
       var item = this.$.tableItems.itemForElement(e.target);
       this._toggleItemSelector(item, e.target.checked);
-      this._updateMasterItemSelector();
       this._updateSelectedItemIds();
+      this._updateMasterItemSelector();
     },
 
     _masterItemSelectorChanged: function (e) {
@@ -534,7 +534,7 @@ Example:
     },
 
     _updateMasterItemSelector: function () {
-      if (this.$$('#masterItemSelector') && !_.isEmpty(this.items) && !_.isEmpty(this.selectedItems)) {
+      if (this.$$('#masterItemSelector')) {
         this.$$('#masterItemSelector').checked = this.selectedItems.length === this.items.length;
       }
     },
