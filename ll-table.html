@@ -58,13 +58,13 @@ Example:
 
   <template>
     <div class="table">
-      <template is="dom-if" if="[[headers]]" restamp="true">
+      <template is="dom-if" if="[[headers]]">
         <div class="table-header">
           <div class="table-row">
-            <template is="dom-repeat" items="[[headers]]" as="cell" restamp="true">
+            <template is="dom-repeat" items="[[headers]]" as="cell">
               <div class="table-cell">
-                <template is="dom-if" if="{{cell.label}}" restamp="true">[[cell.label]]</template>
-                <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
+                <template is="dom-if" if="{{cell.label}}">[[cell.label]]</template>
+                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
                                                                                                 id="masterItemSelector"
                                                                                                 class="checkbox"
                                                                                                 on-change="_masterItemSelectorChanged">
@@ -79,8 +79,8 @@ Example:
           <div class="table-row">
             <template is="dom-repeat" items="[[row.cells]]" as="cell">
               <div class="table-cell" id="[[cell.id]]">
-                <template is="dom-if" if="{{cell.html}}" restamp="true">[[cell.html]]</template>
-                <template is="dom-if" if="{{cell.itemSelector.checkbox}}" restamp="true"><input type="checkbox"
+                <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
+                <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
                                                                                                 on-change="_itemSelectorChanged"
                                                                                                 class="item-selector checkbox">
                 </template>
