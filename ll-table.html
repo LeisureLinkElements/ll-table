@@ -65,9 +65,9 @@ Example:
               <div class="table-cell">
                 <template is="dom-if" if="{{cell.label}}">[[cell.label]]</template>
                 <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
-                                                                                                id="masterItemSelector"
-                                                                                                class="checkbox"
-                                                                                                on-change="_masterItemSelectorChanged">
+                                                                                 id="masterItemSelector"
+                                                                                 class="checkbox"
+                                                                                 on-change="_masterItemSelectorChanged">
                 </template>
               </div>
             </template>
@@ -81,8 +81,8 @@ Example:
               <div class="table-cell" id="[[cell.id]]">
                 <template is="dom-if" if="{{cell.html}}">[[cell.html]]</template>
                 <template is="dom-if" if="{{cell.itemSelector.checkbox}}"><input type="checkbox"
-                                                                                                on-change="_itemSelectorChanged"
-                                                                                                class="item-selector checkbox">
+                                                                                 on-change="_itemSelectorChanged"
+                                                                                 class="item-selector checkbox">
                 </template>
               </div>
             </template>
@@ -117,7 +117,7 @@ Example:
       // Data for each row.
       items: {
         type: Array,
-        value: function() {
+        value: function () {
           []
         }
       },
@@ -255,12 +255,12 @@ Example:
     },
 
     // Return true if columns keys iterate as strings and values are objects.
-    isValidColumnsConfig: function(columns) {
-      if(!_.isObject(columns)) {
+    isValidColumnsConfig: function (columns) {
+      if (!_.isObject(columns)) {
         return false;
       }
-      _.forEach(columns, function(col, key){
-        if(!_.isString(key) || !_.isObject(col)) {
+      _.forEach(columns, function (col, key) {
+        if (!_.isString(key) || !_.isObject(col)) {
           return false;
         }
       });
@@ -268,16 +268,16 @@ Example:
     },
 
     // Return true if items is an array of objects, and each object's keys iterate as strings:
-    isValidItemsArray: function(items) {
-      if(!_.isArray(items)) {
+    isValidItemsArray: function (items) {
+      if (!_.isArray(items)) {
         return false;
       }
-      _.forEach(items, function(item, idx){
-        if(!_.isObject(item)) {
+      _.forEach(items, function (item, idx) {
+        if (!_.isObject(item)) {
           return false;
         }
-        _.forEach(item, function(col, key){
-          if(!_.isString(col)) {
+        _.forEach(item, function (col, key) {
+          if (!_.isString(col)) {
             return false;
           }
         });
@@ -423,13 +423,13 @@ Example:
       this._setRows(rows);
     },
 
-    _startBuildTimer: function() {
-      if(!this._buildStartTime) {
+    _startBuildTimer: function () {
+      if (!this._buildStartTime) {
         this._buildStartTime = new Date().getTime();
       }
     },
 
-    _stopBuildTimer: function() {
+    _stopBuildTimer: function () {
       this._setRenderTime((new Date().getTime() - this._buildStartTime) / 1000);
     },
 
@@ -445,7 +445,7 @@ Example:
 
     _addDynamicContent: function () {
 
-      window.clearInterval(this.dynamicContentWaiter);
+      window.clearInterval(this._dynamicContentWaiter);
 
       if (!_.isEmpty(this._dynamicContent)) {
         var _this = this;
