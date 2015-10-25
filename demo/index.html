@@ -160,7 +160,7 @@
     function setPolymerElementAttributes(selector, readyEvent, attrs, parentNode) {
       parentNode = parentNode || document;
       var el = parentNode.querySelector(selector);
-      if (el && el.isReady) {
+      if (el && el.seanceStates.ready) {
         _.assign(el, attrs);
       } else {
         parentNode.addEventListener(readyEvent, function (evt) {
