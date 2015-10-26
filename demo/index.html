@@ -92,19 +92,19 @@
         items: demoItems6
       },
       {
-        cols: demoColumns1,
+        columns: demoColumns1,
         items: demoItems2
       },
       {
-        cols: demoColumns1,
+        columns: demoColumns1,
         items: demoItems1
       },
       {
-        cols: demoColumns1,
-        items: demoItems1
+        columns: demoColumns1,
+        items: demoItems4
       },
       {
-        cols: demoColumns2,
+        columns: demoColumns2,
         items: demoItems1
       },
       {
@@ -150,7 +150,7 @@
 
     function getDemoDataString(demoIndex) {
       var items = demoConfigs[demoIndex].items;
-      var columns = demoConfigs[demoIndex].cols;
+      var columns = demoConfigs[demoIndex].columns;
       var result = '';
       if(columns)
         result += 'COLUMNS:\n\n'+JSON.stringify(columns, null, '\t')+'\n\n';
@@ -189,7 +189,7 @@
     function setPolymerElementAttributes(selector, readyEvent, attrs, parentNode) {
       parentNode = parentNode || document;
       var el = parentNode.querySelector(selector);
-      if (el && el.seanceStates.ready) {
+      if (el && el.seanceStates.ready.is) {
         _.assign(el, attrs);
       } else {
         parentNode.addEventListener(readyEvent, function (evt) {
@@ -255,7 +255,7 @@
 
 <div class="ll-table-demo" id="demo5">
   <h2>Demo 5<span class="status"></span><span class="json"></span></h2>
-  <h4>Like Demo 4, but column labels are set from separate columns config object.</h4>
+  <h4>Like Demo 4, but column labels are set from separate columns property object.</h4>
   <ul>
     <li><b>Hey, where did the checkboxes go?</b> Oh there they are. ('item-selector-pos' attribute)</li>
     <li>Item ID column is hidden again because no 'show-item-ids' attribute.</li>

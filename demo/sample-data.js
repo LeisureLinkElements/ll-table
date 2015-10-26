@@ -73,23 +73,25 @@ var demoItems4 = [
     id: 'jkwuu833',
     first: 'Gordon',
     last: {
-      element: {
-        tag: 'span',
-        innerHTML: 'Fun Button',
-        classes: [
-          'btn',
-          'btn-warning'
-        ],
-        events: [
-          {
-            in: 'click',
-            out: 'hey-item-was-clicked'
-          },
-          {
-            in: 'mouseover',
-            out: 'wow-item-moused-over'
-          }
-        ]
+      content: {
+        element: {
+          tag: 'span',
+          innerHTML: 'Fun Button',
+          classes: [
+            'btn',
+            'btn-warning'
+          ],
+          events: [
+            {
+              in: 'click',
+              out: 'hey-item-was-clicked'
+            },
+            {
+              in: 'mouseover',
+              out: 'wow-item-moused-over'
+            }
+          ]
+        }
       }
     },
     phone: '12778737630'
