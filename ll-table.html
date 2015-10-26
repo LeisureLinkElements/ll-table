@@ -378,7 +378,7 @@ Example:
                 cell.html = itemId;
               }
             } else if (_.has(_this, 'columns.' + colKey + '.content')) {
-              // Column-wide content is defined for this column.
+              // Dynamic content is defined for this entire column.
               colWideContent = _this.columns[colKey].content;
               if (_.isObject(colWideContent)) {
                 // The column-wide content is an object defining dynamic content.
