@@ -26,7 +26,7 @@
     }
 
     .shown {
-      display: block;
+      display: block !important;
     }
 
     .status {
@@ -36,11 +36,22 @@
       padding: 0 0 0 20px;
     }
 
-    .status span.json {
+    .status a {
+      cursor:pointer;
+      font-style:normal;
+      font-weight:bold;
+      padding: 0 0 0 20px;
+
+    }
+
+    .json {
+      margin:5px 0 0;
       font-size: 12px;
       line-height: 13px;
       font-style: normal;
       color: inherit;
+      white-space: pre;
+      display: none;
     }
 
     h2, h4 {
@@ -132,7 +143,25 @@
     function setDemoStatus(demoIndex, str) {
       var demo = getDemo(demoIndex);
       if (demo) {
-        demo.querySelector(".status").innerHTML = str;
+        demo.querySelector(".status").innerHTML = str + '<a onClick="showData('+demoIndex+')">SHOW DATA</a>';
+        demo.querySelector(".json").innerHTML = getDemoDataString(demoIndex);
+      }
+    }
+
+    function getDemoDataString(demoIndex) {
+      var items = demoConfigs[demoIndex].items;
+      var columns = demoConfigs[demoIndex].cols;
+      var result = '';
+      if(columns)
+        result += 'COLUMNS:\n\n'+JSON.stringify(columns, null, '\t')+'\n\n';
+      result += 'ITEMS:\n\n'+JSON.stringify(items, null, '\t');
+      return result;
+    }
+
+    function showData(demoIndex) {
+      var demo = getDemo(demoIndex);
+      if(demo) {
+        demo.querySelector(".json").classList.add('shown');
       }
     }
 
@@ -188,19 +217,19 @@
 </div>
 
 <div class="ll-table-demo shown" id="demo1">
-  <h2>Demo 1<span class="status"></span></h2>
+  <h2>Demo 1<span class="status"></span><span class="json"></span></h2>
   <h4>Just data. No headers.</h4>
   <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo2">
-  <h2>Demo 2<span class="status"></span></h2>
+  <h2>Demo 2<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo 1, same data, with header. Column labels are auto-set from item data.</h4>
   <ll-table show-header fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo3">
-  <h2>Demo 3<span class="status"></span></h2>
+  <h2>Demo 3<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo 2, same data, with item selection checkboxes</h4>
   <ul>
     <li>Watch console as you select/deselect items.</li>
@@ -212,7 +241,7 @@
 </div>
 
 <div class="ll-table-demo" id="demo4">
-  <h2>Demo 4<span class="status"></span></h2>
+  <h2>Demo 4<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo 3, except:</h4>
   <ul>
     <li>Data has ID strings added</li>
@@ -225,7 +254,7 @@
 </div>
 
 <div class="ll-table-demo" id="demo5">
-  <h2>Demo 5<span class="status"></span></h2>
+  <h2>Demo 5<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo 4, but column labels are set from separate columns config object.</h4>
   <ul>
     <li><b>Hey, where did the checkboxes go?</b> Oh there they are. ('item-selector-pos' attribute)</li>
@@ -237,21 +266,21 @@
 </div>
 
 <div class="ll-table-demo" id="demo6">
-  <h2>Demo 6<span class="status"></span></h2>
+  <h2>Demo 6<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo 5, with some items pre-selected in data.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-6" fire-log-event-prefix="demo-6-"
             fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo7">
-  <h2>Demo 7<span class="status"></span></h2>
+  <h2>Demo 7<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo <b>5 also</b>, but with one of the cells configured as an event-firing button in the data.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-7" fire-log-event-prefix="demo-7-"
             fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo8">
-  <h2>Demo 8<span class="status"></span></h2>
+  <h2>Demo 8<span class="status"></span><span class="json"></span></h2>
   <h4>Like Demo <b>5 also</b>, but with one of the <b>columns</b> configured to <b>populate all rows</b> with an
     event-firing button.</h4>
   <ll-table show-header item-selector-type="checkbox" fire-log-name="demo-8" fire-log-event-prefix="demo-8-"
@@ -259,7 +288,7 @@
 </div>
 
 <div class="ll-table-demo" id="demo9">
-  <h2>Demo 9<span class="status"></span></h2>
+  <h2>Demo 9<span class="status"></span><span class="json"></span></h2>
   <h4>100 rows of random data with IDs and checkboxes for speed testing.</h4>
   <ll-table show-header item-selector-type="checkbox" show-item-ids fire-log-name="demo-9"
             fire-log-event-prefix="demo-9-"
