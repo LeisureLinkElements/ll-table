@@ -354,7 +354,7 @@ Example:
 
       var _this = this,
           rows = [],
-          row, itemId, colWideContent, cell, cellId;
+          row, itemId, colWideContent, cell, cellId, cellContent;
 
       _.forEach(this.items, function (item, itmIdx) {
         itemId = item.id || itmIdx;
@@ -377,7 +377,7 @@ Example:
                 // Display item ID in its own column:
                 cell.html = itemId;
               }
-            } else if (_.has(_this, 'columns.' + colKey + '.content')) {
+            } else if (_.has(_this.columns, colKey + '.content')) {
               // Dynamic content is defined for this entire column.
               colWideContent = _this.columns[colKey].content;
               if (_.isObject(colWideContent)) {
@@ -392,12 +392,13 @@ Example:
                 cell.html = _(colWideContent).toString();
               }
             } else if (colKey != 'selected') {
-              if (_.isObject(item[colKey])) {
+              cellContent = _.get(item, colKey + '.content');
+              if (cellContent) {
                 // Dynamic content is defined for this cell.
                 cell.html = '';
                 _this._dynamicContent[cellId] = {
                   itemId: itemId,
-                  content: item[colKey]
+                  content: cellContent
                 };
               } else {
                 cell.html = item[colKey];
@@ -448,6 +449,7 @@ Example:
       window.clearInterval(this._dynamicContentWaiter);
 
       if (!_.isEmpty(this._dynamicContent)) {
+
         var _this = this;
         _.forEach(this._dynamicContent, function (cell, cellId) {
           var tableCell = Polymer.dom(_this.root).querySelector('#' + cellId);
