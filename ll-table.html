@@ -543,7 +543,7 @@ Example:
 
     _updateMasterItemSelector: function () {
       if (this.$$('#masterItemSelector')) {
-        this.$$('#masterItemSelector').checked = this.selectedItems.length === this.items.length;
+        this.$$('#masterItemSelector').checked = this.selectedItems.length > 0 && this.selectedItems.length === this.items.length;
       }
     },
 
