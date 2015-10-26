@@ -333,7 +333,7 @@ Example:
 
     _getColumnLabelFromColumnKey: function (columnKey) {
       if (_.isString(columnKey)) {
-        return _.has(this.columns, columnKey + '.label') ? this.columns[columnKey].label : columnKey.replace('_', ' ');
+        return _.get(this.columns, columnKey + '.label') || columnKey.replace('_', ' ');
       }
     },
 
@@ -357,7 +357,7 @@ Example:
           row, itemId, colWideContent, cell, cellId;
 
       _.forEach(this.items, function (item, itmIdx) {
-        itemId = item.id ? item.id : itmIdx;
+        itemId = item.id || itmIdx;
         row = {
           id: itemId,
           cells: []
