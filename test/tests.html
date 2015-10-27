@@ -1,0 +1,187 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../ll-table.html">
+</head>
+<body>
+
+
+<script>
+
+  describe('ll-table', function () {
+
+    var myEl = new LLTable();
+
+    describe('data validation', function () {
+
+      it('should validate minimal items data', function () {
+        var items = [
+          {
+            id: 1
+          }
+        ];
+        expect(myEl.isValidItemsArray(items)).to.be.true;
+      });
+
+      it('should validate minimal columns configuration', function () {
+        var columns =
+        {
+          first: {
+            label: 'First Name'
+          }
+        };
+        expect(myEl.isValidColumnsConfig(columns)).to.be.true;
+      });
+
+      it('should generate valid cell ids', function () {
+        expect(myEl._getCellId('uwjh83u', 'name')).to.eql('itm-uwjh83u-c-name');
+      });
+
+    });
+
+    describe('simple table with 3 items and no-header attribute', function () {
+
+      var myEl = new LLTable();
+      myEl.noHeader = true;
+
+      it('should fire an event when finished rendering', function (done) {
+
+        myEl.addEventListener('rendered', function (event) {
+          expect(event).to.be.ok;
+          done();
+        });
+
+        myEl.items = [
+          {
+            id: '82ois33',
+            first: 'Darla',
+            last: 'Beaufort',
+            phone: '19997776666'
+          },
+          {
+            id: 'usjiow9',
+            first: 'Gordon',
+            last: 'Bolster',
+            phone: '12778737630'
+          },
+          {
+            id: 'ss2o233',
+            first: 'Darren',
+            last: 'Levitt',
+            phone: '12129998888'
+          }
+        ];
+
+      });
+
+      it('should not have a table header', function () {
+        expect(myEl.$$('.table-header .table-row .table-cell')).to.be.not.ok;
+      });
+
+      it('should have a table body with 4 elements (3 rows and one template)', function () {
+        expect(myEl.$$('.table-body').children).to.have.length(4);
+      });
+
+      it('should have a table body with at least one table row containing 3 cells', function () {
+        expect(myEl.$$('.table-body .table-row').children).to.have.length(4);
+      });
+
+    });
+
+    describe('simple table with 3 items, show-headers attribute set, and item selection checkboxes', function () {
+
+      var myEl = new LLTable();
+      myEl.itemSelectorType = 'checkbox';
+
+      it('should fire an event when finished rendering', function (done) {
+
+        myEl.addEventListener('rendered', function (event) {
+          expect(event).to.be.ok;
+          done();
+        });
+
+        myEl.items = [
+          {
+            id: '82ois33',
+            first: 'Darla',
+            last: 'Beaufort',
+            phone: '19997776666'
+          },
+          {
+            id: 'usjiow9',
+            first: 'Gordon',
+            last: 'Bolster',
+            phone: '12778737630'
+          },
+          {
+            id: 'ss2o233',
+            first: 'Darren',
+            last: 'Levitt',
+            phone: '12129998888'
+          }
+        ];
+
+      });
+
+      it('should have a table header', function () {
+        expect(myEl.$$('.table-header .table-row .table-cell')).to.be.ok;
+      });
+
+      it('should have a table body with 4 elements (3 rows and one template)', function () {
+        expect(myEl.$$('.table-body').children).to.have.length(4);
+      });
+
+      it('should have a table body with at least one table row containing 5 cells', function () {
+        expect(myEl.$$('.table-body .table-row').children).to.have.length(5);
+      });
+
+      describe('item selection', function () {
+
+        it('should have a at least one item selection checkbox', function () {
+          expect(myEl.$$('.item-selector')).to.be.ok;
+        });
+
+        it('should fire an event along with an array of selected item ids of length 1 when an item is selected using a checkbox', function (done) {
+
+          var selects = 0;
+          myEl.addEventListener('selected-items-changed', function (event) {
+            if (selects++ > 0) {
+              // Ignore initial selected-items-changed event when items are set.
+              expect(event).to.be.ok;
+              expect(event.detail).to.be.an('object');
+              expect(event.detail.path).to.equal('selectedItems.length');
+              expect(event.detail.value).to.equal(1);
+              done();
+            }
+          });
+
+          myEl._toggleItemSelectionInput(myEl.$$('.item-selector'), true);
+
+        });
+
+      });
+
+    });
+
+
+  });
+</script>
+
+</body>
+</html>
