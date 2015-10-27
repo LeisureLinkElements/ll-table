@@ -129,7 +129,7 @@ Example:
         observer: '_selectedItemIdsChanged'
       },
 
-      // If the showHeader property is set to true,
+      // If the noHeader property is set to true,
       // the column header will contain the itemIdColumnLabel property value.
       // Set element attribute 'show-item-ids'
       // When true, item IDs (if any) are displayed in their own column.
@@ -160,11 +160,12 @@ Example:
         value: 'left'
       },
 
-      // Set as element attribute 'show-header'
-      // NOTE: If the itemSelectorType is != 'none',
-      // header row will be shown anyway to display master selector.
-      // When true, header row is displayed with column names.
-      showHeader: {
+
+      /**
+       * When true, no header row is displayed.
+       * NOTE: If the itemSelectorType is != 'none', header row will be shown anyway to display master selector.
+       */
+      noHeader: {
         type: Boolean,
         value: false
       },
@@ -226,7 +227,7 @@ Example:
     },
 
     observers: [
-      '_buildHeaders(showHeader,itemSelectorType,items,columns)',
+      '_buildHeaders(noHeader,itemSelectorType,items,columns)',
       '_buildRows(itemSelectorType,items,columns)'
     ],
 
@@ -291,10 +292,10 @@ Example:
 
       // If there's an item selector, show the header row in order to display select all/none selector:
       if (this.itemSelectorType != 'none') {
-        this.showHeader = true;
+        this.noHeader = false;
       }
 
-      if (this.showHeader) {
+      if (!this.noHeader) {
 
         // Build a list of column names based on keys in first item and keys of optional columns property:
         this._columnsDefSource = !_.isEmpty(this.columns) ? this.columns : this.items[0];

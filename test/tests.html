@@ -55,9 +55,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     });
 
-    describe('simple table with 3 items and no show-headers attribute', function () {
+    describe('simple table with 3 items and no-header attribute', function () {
 
       var myEl = new LLTable();
+      myEl.noHeader = true;
 
       it('should fire an event when finished rendering', function (done) {
 
@@ -106,7 +107,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     describe('simple table with 3 items, show-headers attribute set, and item selection checkboxes', function () {
 
       var myEl = new LLTable();
-      myEl.showHeaders = true;
       myEl.itemSelectorType = 'checkbox';
 
       it('should fire an event when finished rendering', function (done) {
