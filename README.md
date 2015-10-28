@@ -4,32 +4,12 @@ Data-driven table generator.
 
 Features:
 
-
-- **Configuration-driven:** Generates and updates entire table from one required and one optional json object, plus optional element attributes. (See demo and /demo/sample-data.js for examples.) Dynamic insertion and deletion of individual rows is not supported.
-- **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements:
-    * Example - Static cell content: Any string or numeric data. (No HTML tags).
-    * Example - Configuration-generated cell content with event-handling. If you need a more complete HTML element displayed within a cell, use an 'element' object in place of a string or number:
-      
-        element: {
-          tag: 'span', // The type of HTML element that to generate.
-          innerHTML: 'DELETE', // Optional content inside tag (currently no HTML allowed inside the main HTML tag)
-          classes: [ // Optional list of classes to add to the element. Does not override the Polymer classes automatically added by Polymer.dom.
-            'btn',
-            'btn-primary',
-            'remove-unit'
-          ],
-          events: [ // Optional event configuration:
-            {
-              in: 'click', // Event to listen for.
-              out: 'remove-unit', // Event to fire.
-            }
-          ]
-        }
-      
-- **Column-wide repeating content:** Populate an entire column of cells with the same static content or generated element by defining it in the column's configuration.
-- **Column-wide item selection UI:** Any column may be designated as an item selection UI column. In this case, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'selected' key to true in the cfg.items[..].cells objects. ('selected' is never displayed as a column value itself). Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
-- **Optional column headers:** To show column header row, include a 'label' node in at least one column definition.
+- **Fires 'rendered' event after entire template content has been added to local DOM.**
+- **Optional item-selection check-boxes with select-all checkbox:** Optionally display a checkbox to the left or right of every item. Clicking any checkbox fires an event with array of item ids currently selected.
+- **Optional display of item ids in their own column:**
+- **Optional column configuration:** Column labels are normally inferred from first item object, but you can set the columns property to specify alternate column labels.
+- **Table header can be suppressed.**
 
 
 ## Dependencies

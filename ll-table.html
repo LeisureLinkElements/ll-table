@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../polymer/polymer.html">
 
 <link rel="import" href="../ll-theme/ll-theme.html">
@@ -17,41 +7,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <script type="application/javascript" src="../lodash/lodash.js"></script>
 
-
 <!--
-Configurable, table-less table generator with static or configuration-generated cell content, event-firing, column-wide repeating elements, and item selection.
-
-Example:
-
-    <ll-table></ll-table>
-
+### Summary:
+Table generator with optional item selection checkboxes.
 ### Features:
-- **Configuration-driven:** Generates and updates entire table from one required and one optional json object, plus optional element attributes. (See demo and /demo/sample-data.js for examples.) Dynamic insertion and deletion of individual rows is not supported.
-- **Static or configuration-generated cell content:** Table cell content can be simple text or configuration-generated html elements:
- - Example - Static cell content: Any string or numeric data. (No HTML tags).
- - Example - Configuration-generated cell content with event-handling. If you need a more complete HTML element displayed within a cell, use an 'element' object in place of a string or number:
-        element: {
-          tag: 'span', // The type of HTML element that to generate.
-          innerHTML: 'DELETE', // Optional content inside tag (currently no HTML allowed inside the main HTML tag)
-          classes: [ // Optional list of classes to add to the element. Does not override the Polymer classes automatically added by Polymer.dom.
-            'btn',
-            'btn-primary',
-            'remove-unit'
-          ],
-          events: [ // Optional event configuration:
-            {
-              in: 'click', // Event to listen for.
-              out: 'remove-unit', // Event to fire.
-            }
-          ]
-        }
-- **Column-wide repeating content:** Populate an entire column of cells with the same static content or generated element by defining it in the column's configuration.
-- **Column-wide item selection UI:** Any column may be designated as an item selection UI column. In this case, the entire column of cells is populated with a UI corresponding to the itemSelector.type. The "selectedItemIds" array property reflects which items are selected. Optionally, you may indicate which checkboxes are initially checked by setting the value of the 'selected' key to true in the cfg.items[..].cells objects. ('selected' is never displayed as a column value itself). Currently, only simple checkboxes are supported, but any other type of UI could be implemented.
 - **Table-less markup:** Table is built with divs and css, not a table element.
-- **Optional column headers:** To show column header row, include a 'label' node in at least one column definition.
+- **Fires 'rendered' event after entire template content has been added to local DOM.**
+- **Optional item-selection check-boxes with select-all checkbox:** Optionally display a checkbox to the left or right of every item. Clicking any checkbox fires an event with array of item ids currently selected.
+- **Optional display of item ids in their own column:**
+- **Optional column configuration:** Column labels are normally inferred from first item object, but you can set the columns property to specify alternate column labels.
+- **Table header can be suppressed.**
 
 @demo
 -->
+
 <dom-module id="ll-table">
 
   <style include="shared-styles"></style>
