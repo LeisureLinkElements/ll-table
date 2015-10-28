@@ -224,8 +224,6 @@ Table generator with optional item selection checkboxes.
         } else {
           this._columnsDefSource = this.columns;
         }
-        this._fireLog('this._columnsDefSource:',this._columnsDefSource);
-
         if (!this.isValidColumnsConfig(this._columnsDefSource)) {
           this._fireLog('Invalid columns data:', this._columnsDefSource);
           return false;
