@@ -96,18 +96,6 @@
         items: demoItems2
       },
       {
-        columns: demoColumns1,
-        items: demoItems1
-      },
-      {
-        columns: demoColumns1,
-        items: demoItems4
-      },
-      {
-        columns: demoColumns2,
-        items: demoItems1
-      },
-      {
         items: demoItems5
       }
     ];
@@ -218,14 +206,14 @@
 
 <div class="ll-table-demo shown" id="demo1">
   <h2>Demo 1<span class="status"></span><span class="json"></span></h2>
-  <h4>Just data. No headers.</h4>
-  <ll-table no-header fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-log></ll-table>
+  <h4>Column labels are auto-set from item data.</h4>
+  <ll-table fire-log-name="demo-1" fire-log-event-prefix="demo-1-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo2">
   <h2>Demo 2<span class="status"></span><span class="json"></span></h2>
-  <h4>Like Demo 1, same data, with header. Column labels are auto-set from item data.</h4>
-  <ll-table fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-log></ll-table>
+  <h4>Like Demo 1, same data, but no header.</h4>
+  <ll-table no-header fire-log-name="demo-2" fire-log-event-prefix="demo-2-" fire-log></ll-table>
 </div>
 
 <div class="ll-table-demo" id="demo3">
@@ -274,24 +262,9 @@
 
 <div class="ll-table-demo" id="demo7">
   <h2>Demo 7<span class="status"></span><span class="json"></span></h2>
-  <h4>Like Demo <b>5 also</b>, but with one of the cells configured as an event-firing button in the data.</h4>
-  <ll-table item-selector-type="checkbox" fire-log-name="demo-7" fire-log-event-prefix="demo-7-"
-            fire-log></ll-table>
-</div>
-
-<div class="ll-table-demo" id="demo8">
-  <h2>Demo 8<span class="status"></span><span class="json"></span></h2>
-  <h4>Like Demo <b>5 also</b>, but with one of the <b>columns</b> configured to <b>populate all rows</b> with an
-    event-firing button.</h4>
-  <ll-table item-selector-type="checkbox" fire-log-name="demo-8" fire-log-event-prefix="demo-8-"
-            fire-log></ll-table>
-</div>
-
-<div class="ll-table-demo" id="demo9">
-  <h2>Demo 9<span class="status"></span><span class="json"></span></h2>
   <h4>100 rows of random data with IDs and checkboxes for speed testing.</h4>
-  <ll-table item-selector-type="checkbox" show-item-ids fire-log-name="demo-9"
-            fire-log-event-prefix="demo-9-"
+  <ll-table item-selector-type="checkbox" show-item-ids fire-log-name="demo-7"
+            fire-log-event-prefix="demo-7-"
             fire-log></ll-table>
 </div>
 </body>
