@@ -216,9 +216,9 @@ Table generator with optional item selection checkboxes.
       if (!this.noHeader) {
 
         // Build a list of column names based on keys in first item and keys of optional columns property:
-        if(_.isEmpty(this.columns)) {
+        if (_.isEmpty(this.columns)) {
           this._columnsDefSource = _.cloneDeep(this.items[0]);
-          if(this._columnsDefSource.id && !this.showItemIds) {
+          if (this._columnsDefSource.id && !this.showItemIds) {
             delete this._columnsDefSource.id;
           }
         } else {
@@ -256,8 +256,7 @@ Table generator with optional item selection checkboxes.
         this._fireLog('Invalid items data:', this.items);
         return false;
       }
-
-      this._setSelectedItemIds([]);
+      this._toggleAllItemSelectorInputs(false);
 
       if (_.isEmpty(this._columnsDefSource)) {
         this._columnsDefSource = this.items[0];
@@ -270,7 +269,7 @@ Table generator with optional item selection checkboxes.
       _.forEach(this.items, function (item, itmIdx) {
         if (item.id) {
           itemId = item.id;
-          if(!_this.showItemIds) {
+          if (!_this.showItemIds) {
             delete item.id;
           }
         } else {
@@ -336,14 +335,6 @@ Table generator with optional item selection checkboxes.
       this._fireLogFire('selected-items-changed', newValue);
     },
 
-    _initItemSelections: function () {
-      var selections = [];
-      _.forEach(this.items, function (item) {
-        selections.push(item.selected ? true : false);
-      });
-      this._toggleAllItemSelectorInputs(selections);
-    },
-
     // Toggle all item selector inputs true, false, or by array of booleans:
     _toggleAllItemSelectorInputs: function (selected) {
       var blanket;
@@ -385,7 +376,7 @@ Table generator with optional item selection checkboxes.
       if (!this._buildStartTime) {
         var _this = this;
         this._buildStartTime = new Date().getTime();
-        this.$.tableItems.addEventListener('dom-change', function(){
+        this.$.tableItems.addEventListener('dom-change', function () {
           _this._stopBuildTimer();
           _this._fireLogFire('rendered');
         });
