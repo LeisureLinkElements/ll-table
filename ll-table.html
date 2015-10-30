@@ -216,9 +216,9 @@ Table generator with optional item selection checkboxes.
       if (!this.noHeader) {
 
         // Build a list of column names based on keys in first item and keys of optional columns property:
-        if(_.isEmpty(this.columns)) {
+        if (_.isEmpty(this.columns)) {
           this._columnsDefSource = _.cloneDeep(this.items[0]);
-          if(this._columnsDefSource.id && !this.showItemIds) {
+          if (this._columnsDefSource.id && !this.showItemIds) {
             delete this._columnsDefSource.id;
           }
         } else {
@@ -270,7 +270,7 @@ Table generator with optional item selection checkboxes.
       _.forEach(this.items, function (item, itmIdx) {
         if (item.id) {
           itemId = item.id;
-          if(!_this.showItemIds) {
+          if (!_this.showItemIds) {
             delete item.id;
           }
         } else {
@@ -385,7 +385,7 @@ Table generator with optional item selection checkboxes.
       if (!this._buildStartTime) {
         var _this = this;
         this._buildStartTime = new Date().getTime();
-        this.$.tableItems.addEventListener('dom-change', function(){
+        this.$.tableItems.addEventListener('dom-change', function () {
           _this._stopBuildTimer();
           _this._fireLogFire('rendered');
         });
